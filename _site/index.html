@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ScratchBox.media — From What If to Watch This</title>
+<meta name="description" content="ScratchBox.Media is a creative studio helping startups and brands grow with strategy, branding, content, media, and marketing — from what if to watch this."/>
+<meta name="robots" content="index, follow"/>
+<link rel="canonical" href="https://scratchbox.media/"/>
+<meta property="og:title" content="ScratchBox.media — From What If to Watch This"/>
+<meta property="og:description" content="ScratchBox.Media is a creative studio helping startups and brands grow with strategy, branding, content, media, and marketing — from what if to watch this."/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://scratchbox.media/"/>
+<meta property="og:image" content="https://scratchbox.media/sbmlogo.webp"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="ScratchBox.media — From What If to Watch This"/>
+<meta name="twitter:description" content="ScratchBox.Media is a creative studio helping startups and brands grow with strategy, branding, content, media, and marketing — from what if to watch this."/>
+<meta name="twitter:image" content="https://scratchbox.media/sbmlogo.webp"/>
+<link rel="icon" href="/sbmlogo.webp"/>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "ScratchBox.Media",
+  "url": "https://scratchbox.media/",
+  "logo": "https://scratchbox.media/sbmlogo.webp",
+  "description": "Creative studio helping startups and brands grow with strategy, branding, content, media, and marketing."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "ScratchBox.Media",
+  "url": "https://scratchbox.media/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "Schedulaa",
+  "description": "The all-in-one social-media scheduling tool to grow your audience and save time.",
+  "url": "https://schedulaa.in/",
+  "brand": {
+    "@type": "Organization",
+    "name": "ScratchBox.Media"
+  }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,700;12..96,800&family=DM+Mono:wght@300;400;500&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/assets/css/site.css"/>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7FXT005235"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-7FXT005235', { send_page_view: false });
+</script>
+<script>
+  (function(c,l,a,r,i,t,y){
+    c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+    t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+    y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+  })(window, document, "clarity", "script", "qdvrnoux8a");
+</script>
+</head>
+<body data-page="home">
+
+<!-- ========================
+     CALENDLY POPUP MODAL
+========================= -->
+<div class="modal-overlay" id="calendlyModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">📅 Book Your Free 30-Min Strategy Call</div>
+        <div class="modal-subtitle">No pitch. No obligation. Just real strategy for your brand.</div>
+      </div>
+      <button class="modal-close" onclick="closeCalendly()">✕</button>
+    </div>
+    <div class="modal-trust-bar">
+      <div class="trust-item"><span class="trust-dot"></span>100% Free — No Credit Card</div>
+      <div class="trust-item"><span class="trust-dot"></span>Real Strategy, Not a Sales Call</div>
+      <div class="trust-item"><span class="trust-dot"></span>Reply Within 1 Hour</div>
+    </div>
+    <div class="modal-body">
+      <iframe
+        class="modal-calendly-frame"
+        id="calendlyFrame"
+        src="https://calendly.com/media-scratchbox/30min?hide_gdpr_banner=1&background_color=f7f5ef&text_color=0d0d0d&primary_color=ccff00"
+        title="Book a call with ScratchBox.Media">
+      </iframe>
+    </div>
+    <div class="modal-cta-alt">
+      <div class="modal-cta-alt-text">Prefer WhatsApp? <strong>+91 99281 06169</strong></div>
+      <a href="https://api.whatsapp.com/send?phone=919928106169&text=Hi%20ScratchBox!%20I'd%20like%20to%20discuss%20a%20project." target="_blank">Chat on WhatsApp <span class="arr">↗</span></a>
+    </div>
+  </div>
+</div>
+
+<!-- ========================
+     FOUNDER VIDEO MODAL
+========================= -->
+<div class="video-modal-overlay" id="videoModal">
+  <div class="video-modal-box">
+    <div class="video-modal-header">
+      <div class="video-modal-title">👋 Meet OJ & Vartika</div>
+      <button class="video-modal-close" onclick="closeVideoModal()">✕</button>
+    </div>
+    <div class="video-phone-frame" id="videoFrame">
+      <!-- Video will be injected here. Replace src with actual video URL -->
+      <div class="video-placeholder">
+        <div class="video-placeholder-icon">🎬</div>
+        <div class="video-placeholder-text">
+          <strong>Founder's Story</strong>
+          Video coming soon — we're editing the good stuff!<br>For now, reach us directly below.
+        </div>
+      </div>
+    </div>
+    <div class="video-modal-footer">
+      <p>The duo behind ScratchBox.Media, Bangalore</p>
+      <button class="btn-lime" onclick="closeVideoModal();openCalendly();" style="border:none;width:100%;justify-content:center;font-size:14px;">
+        Book a Free Call with Them <span class="arr">↗</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Project Form Modal -->
+<div class="project-modal-overlay" id="projectModal">
+  <div class="project-modal-box">
+    <div class="project-modal-header">
+      <div>
+        <div class="project-modal-title">Tell us about your project</div>
+        <div class="project-modal-sub">Quick form — we reply within 24 hours.</div>
+      </div>
+      <button class="project-modal-close" onclick="closeProjectForm()">✕</button>
+    </div>
+    <div class="project-modal-body">
+      <form class="contact-form" onsubmit="handleProjectSubmit(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input class="form-input" type="text" name="name" placeholder="Your name" required/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input class="form-input" type="email" name="email" placeholder="grow@scratchbox.media" required/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Phone</label>
+            <input class="form-input" type="tel" name="phone" placeholder="+91 9xxxx xxxxx"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Company</label>
+            <input class="form-input" type="text" name="company" placeholder="Brand or startup name"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Budget Range</label>
+            <select class="form-select" name="budget">
+              <option value="" selected>Select a range</option>
+              <option value="under-30k">Under ₹30,000/mo</option>
+              <option value="30k-75k">₹30,000 – ₹75,000/mo</option>
+              <option value="75k-plus">₹75,000+/mo</option>
+              <option value="project">One-off project budget</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Timeline</label>
+            <select class="form-select" name="timeline">
+              <option value="" selected>Select timeline</option>
+              <option value="asap">ASAP (within 4 weeks)</option>
+              <option value="1-3">1–3 months</option>
+              <option value="3-6">3–6 months</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Project Details</label>
+          <textarea class="form-textarea" name="details" placeholder="Tell us about your goals, scope, and what you need help with." required></textarea>
+        </div>
+        <button class="form-submit" type="submit">Submit Project Brief <span class="arr">→</span></button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Cursor -->
+<div id="cur"></div>
+
+<!-- Mobile menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-close" id="mobileClose">✕</button>
+  <a href="/" data-track="nav_click" data-track-label="Home">Home</a>
+  <a href="/about/" data-track="nav_click" data-track-label="About">About</a>
+  <a href="/services/" data-track="nav_click" data-track-label="Services">Services</a>
+  <a href="/work/" data-track="nav_click" data-track-label="Work">Work</a>
+  <a href="/products/" data-track="nav_click" data-track-label="Products">Products</a>
+  <a href="/pricing/" data-track="nav_click" data-track-label="Pricing">Pricing</a>
+  <a href="/contact/" data-track="nav_click" data-track-label="Contact">Contact</a>
+</div>
+
+<!-- ===== NAV ===== -->
+<nav id="nav">
+  <a class="nav-logo" href="/">
+    <span class="dot"></span>
+    <img class="nav-logo-img" src="/sbmlogo.webp" alt="ScratchBox.Media logo"/>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/" data-page="home" data-track="nav_click" data-track-label="Home">Home</a></li>
+    <li><a href="/about/" data-page="about" data-track="nav_click" data-track-label="About">About</a></li>
+    <li><a href="/services/" data-page="services" data-track="nav_click" data-track-label="Services">Services</a></li>
+    <li><a href="/work/" data-page="work" data-track="nav_click" data-track-label="Work">Work</a></li>
+    <li><a href="/products/" data-page="products" data-track="nav_click" data-track-label="Products">Products</a></li>
+    <!-- <li><a href="/blog/" data-page="blog">Blog</a></li> -->
+    <li><a href="/pricing/" data-page="pricing" data-track="nav_click" data-track-label="Pricing">Pricing</a></li>
+    <li><a href="/contact/" data-page="contact" data-track="nav_click" data-track-label="Contact">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="hamburger" id="hamburger">
+      <span></span><span></span><span></span>
+    </button>
+    <a class="btn-cta" href="#" onclick="openCalendly();return false;" data-track="cta_book_call" data-track-label="nav">
+      Book Free Call <span class="arr">↗</span>
+    </a>
+  </div>
+</nav>
+
+<!-- HERO -->
+  <section class="hero">
+    <div class="hero-left">
+      <div class="hero-eyebrow">
+        <span class="hero-eyebrow-badge">Creative Studio</span>
+        <span class="label">Bangalore, India</span>
+      </div>
+      <h1 class="hero-h1">
+        From <em>What If</em><br>to<br>Watch This.
+      </h1>
+      <p class="hero-sub">We help startups and brands grow from scratch — with content, websites, media, and marketing that actually moves the needle.</p>
+      <div class="hero-actions">
+        <a class="btn-lime" href="/work/" data-track="cta_see_work" data-track-label="hero">See our work <span class="arr">↗</span></a>
+        <a class="btn-ghost" href="#" onclick="openCalendly();return false;" data-track="cta_book_call" data-track-label="hero">Book free call →</a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="stat-num">50<span>+</span></div>
+          <div class="stat-label">Projects Delivered</div>
+        </div>
+        <div>
+          <div class="stat-num">6<span>+</span></div>
+          <div class="stat-label">Service Offerings</div>
+        </div>
+        <div>
+          <div class="stat-num">100<span>%</span></div>
+          <div class="stat-label">Client Focus</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-right dark-section">
+      <div class="hero-right-inner">
+        <div class="hero-card">
+          <div class="hero-card-bg">
+            <video class="hero-card-video" preload="metadata" poster="/videos/home1-poster.jpg" src="/videos/home1.mp4" autoplay loop muted playsinline></video>
+          </div>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:72px;opacity:.15;">🎬</div>
+          <div class="hero-tag">Media Production</div>
+          <div>
+            <div class="hero-card-label">Stories That Stop The Scroll</div>
+            <div class="hero-card-sub">Video · Animation · Photography</div>
+          </div>
+        </div>
+        <div class="hero-card">
+          <div class="hero-card-bg">
+            <video class="hero-card-video" preload="metadata" poster="/videos/home2-poster.jpg" src="/videos/home2.mp4" autoplay loop muted playsinline></video>
+          </div>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:72px;opacity:.15;">🚀</div>
+          <div class="hero-tag">Brand Growth</div>
+          <div>
+            <div class="hero-card-label">Growth-Led Brand Building</div>
+            <div class="hero-card-sub">Branding · Marketing · Strategy</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-display-bg">MEDIA</div>
+      <!-- Floating button meet OJ & Vartika -->
+      <div class="hero-bottom-badge" id="heroBadge" onclick="openVideoModal()" style="cursor:none;">
+        <div class="badge-ava" style="background:var(--lime);">👋</div>
+        <div class="badge-text">
+          <strong>Meet OJ & Vartika ▶</strong>
+          <span>Co-Founders of ScratchBox.Media</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHO -->
+<section class="who" id="whoSection">
+    <div class="label">Who are we?</div>
+    <div class="who-grid">
+      <h2 class="who-h2 reveal">An independent creative studio that helps brands grow — starting from scratch.</h2>
+      <div class="who-body">
+        <p class="reveal reveal-d1">At ScratchBox.media, we believe every great brand has a bold "what if?" at its core. We take that idea and turn it into something the world can't ignore.</p>
+        <p class="reveal reveal-d2">Whether you need a high-converting website, a brand identity that turns heads, or content that keeps audiences coming back — we're your creative partner for the whole journey.</p>
+        <div class="who-actions reveal reveal-d3">
+          <a class="btn-lime" href="/about/">About us <span class="arr">↗</span></a>
+          <a class="btn-ghost" href="/work/">See our work →</a>
+        </div>
+      </div>
+    </div>
+<!-- 
+    <div class="founders-row" style="margin-top:60px;">
+      <div class="founder-card reveal">
+        <div class="founder-avatar">🧠</div>
+        <div class="founder-name">OJ</div>
+        <div class="founder-role">Co-Founder & Strategy Lead</div>
+        <div class="founder-quote">"Before every unforgettable brand story, there's a bold 'what if?' — we help you find yours."</div>
+      </div>
+      <div class="founder-card reveal reveal-d1">
+        <div class="founder-avatar">✨</div>
+        <div class="founder-name">Vartika</div>
+        <div class="founder-role">Co-Founder & Creative Director</div>
+        <div class="founder-quote">"Because every 'watch this' moment is born from a daring 'what if.' That's our superpower."</div>
+      </div>
+    </div> -->
+  </section>
+
+  <!-- CLIENTS -->
+  <div class="clients">
+    <div class="clients-label"><span class="label">Trusted by growing brands</span></div>
+    <div class="clients-track-wrap">
+      <div class="clients-track">
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/1.webp" alt="Client logo 1"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/immuna.webp" alt="immuna.ch-website Client"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/lagoonVilla.webp" alt="lagoonVilla.ch-website Client"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/2.webp" alt="Client logo 2"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/3.webp" alt="Client logo 3"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/4.webp" alt="Client logo 4"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/5.webp" alt="Client logo 5"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/6.webp" alt="Client logo 6"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/7.webp" alt="Client logo 7"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/8.webp" alt="Client logo 8"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/9.webp" alt="Client logo 9"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/10.webp" alt="Client logo 10"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/11.webp" alt="Client logo 11"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/12.webp" alt="Client logo 12"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/13.webp" alt="Client logo 13"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/14.webp" alt="Client logo 14"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/1.webp" alt="Client logo 1"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/immuna.webp" alt="immuna.ch-website development"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/lagoonVilla.webp" alt="lagoonVilla.ch-website development"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/2.webp" alt="Client logo 2"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/3.webp" alt="Client logo 3"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/4.webp" alt="Client logo 4"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/5.webp" alt="Client logo 5"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/6.webp" alt="Client logo 6"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/7.webp" alt="Client logo 7"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/8.webp" alt="Client logo 8"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/9.webp" alt="Client logo 9"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/10.webp" alt="Client logo 10"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/11.webp" alt="Client logo 11"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/12.webp" alt="Client logo 12"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/13.webp" alt="Client logo 13"/></span>
+        <span class="client-logo-item"><img class="client-logo-img" loading="lazy" decoding="async" src="/CLIENTS_SBM/14.webp" alt="Client logo 14"/></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SERVICES PREVIEW (dark) -->
+  <section class="services-prev dark-section">
+    <div class="sp-header">
+      <div>
+        <div class="label light" style="margin-bottom:20px;">Our Expertise</div>
+        <h2 class="sp-h2 reveal">How we take<br>your brand to<br>the next level</h2>
+      </div>
+      <div class="sp-right">
+        <p class="sp-desc reveal reveal-d1">We're a digital marketing and creative studio on a mission to help you make your mark. From strategy to execution — we've got you covered.</p>
+        <a class="btn-white reveal reveal-d2" href="/services/">See all services <span class="arr">↗</span></a>
+      </div>
+    </div>
+    <div class="services-list">
+      <div class="svc-row reveal" onclick="window.location.href='/services/'">
+        <span class="svc-num">01</span>
+        <div class="svc-name">Branding</div>
+        <div class="svc-arr">↗</div>
+      </div>
+      <div class="svc-row reveal reveal-d1" onclick="window.location.href='/services/'">
+        <span class="svc-num">02</span>
+        <div class="svc-name">Media Production</div>
+        <div class="svc-arr">↗</div>
+      </div>
+      <div class="svc-row reveal reveal-d2" onclick="window.location.href='/services/'">
+        <span class="svc-num">03</span>
+        <div class="svc-name">Web & App Dev</div>
+        <div class="svc-arr">↗</div>
+      </div>
+      <div class="svc-row reveal reveal-d3" onclick="window.location.href='/services/'">
+        <span class="svc-num">04</span>
+        <div class="svc-name">Social Media</div>
+        <div class="svc-arr">↗</div>
+      </div>
+      <div class="svc-row reveal" onclick="window.location.href='/services/'">
+        <span class="svc-num">05</span>
+        <div class="svc-name">Marketing</div>
+        <div class="svc-arr">↗</div>
+      </div>
+      <div class="svc-row reveal reveal-d1" onclick="window.location.href='/services/'">
+        <span class="svc-num">06</span>
+        <div class="svc-name">Product Strategy</div>
+        <div class="svc-arr">↗</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORK PREVIEW -->
+  <section class="work-home">
+    <div class="wh-header">
+      <div>
+        <div class="label" style="margin-bottom:16px;">Our Work</div>
+        <h2 class="wh-h2 reveal">Take a look at our projects</h2>
+      </div>
+      <a class="btn-outline reveal" href="/work/">View all projects ↗</a>
+    </div>
+    <div class="wh-grid">
+      <div class="wh-item tall reveal">
+        <div class="wh-item-bg bg-a" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:80px;opacity:.15;">📱</div>
+        <div class="wh-item-overlay"></div>
+        <div class="wh-hover-btn">↗</div>
+        <div class="wh-item-body">
+          <div class="wh-year">2024 • Brand Repositioning</div>
+          <div class="wh-title">Refreshing a D2C brand's digital presence</div>
+          <div class="wh-tags"><span class="wh-tag">Website</span><span class="wh-tag">SEO</span><span class="wh-tag">Branding</span></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="wh-item wide reveal reveal-d1">
+          <div class="wh-item-bg bg-b" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:60px;opacity:.15;">🎬</div>
+          <div class="wh-item-overlay"></div>
+          <div class="wh-hover-btn">↗</div>
+          <div class="wh-item-body">
+            <div class="wh-year">2024 • Media Production</div>
+            <div class="wh-title">A campaign film series that broke 2M views</div>
+            <div class="wh-tags"><span class="wh-tag">Video</span><span class="wh-tag">Strategy</span></div>
+          </div>
+        </div>
+        <div class="wh-item wide reveal reveal-d2">
+          <div class="wh-item-bg bg-c" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:60px;opacity:.15;">🚀</div>
+          <div class="wh-item-overlay"></div>
+          <div class="wh-hover-btn">↗</div>
+          <div class="wh-item-body">
+            <div class="wh-year">2023 • Growth Strategy</div>
+            <div class="wh-title">Scaling a SaaS startup's content engine</div>
+            <div class="wh-tags"><span class="wh-tag">Marketing</span><span class="wh-tag">Content</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIAL -->
+  <section class="testi-home">
+    <div class="testi-inner dark-section">
+      <div>
+        <div class="testi-quote-icon">❝</div>
+        <p class="testi-text reveal">"ScratchBox created something better than I ever could have imagined. They became true partners in our growth."</p>
+        <div class="testi-author reveal reveal-d1">
+          <div class="testi-avatar">😊</div>
+          <div>
+            <div class="testi-name">Riya Sharma</div>
+            <div class="testi-role">Founder, Veda Growth</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-right">
+        <div class="testi-cta-block reveal">
+          <h3>Great Product. Stuck at Marketing?</h3>
+          <p>No worries — we've got you covered. Book a no-cost 30-minute consultation call with our experts.</p>
+          <a class="btn-lime" href="#" onclick="openCalendly();return false;">Book free call <span class="arr">↗</span></a>
+          <div class="rating-row" style="margin-top:20px;">
+            <span class="stars">★★★★★</span>
+            <span style="font-size:13px;color:rgba(255,255,255,.4);">5.0 Google Reviews</span>
+          </div>
+        </div>
+        <div class="testi-cta-block reveal reveal-d1" style="background:rgba(204,255,0,.07);border-color:rgba(204,255,0,.15);">
+          <h3>WhatsApp Us</h3>
+          <p>Prefer to chat? Reach out directly on WhatsApp and we'll respond within the hour.</p>
+          <a class="btn-white" href="https://api.whatsapp.com/send?phone=919928106169" target="_blank">Chat on WhatsApp <span class="arr">↗</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA BAND -->
+  <div class="cta-band">
+    <h2>Ready to go from <em style="font-style:normal;text-decoration:underline;text-decoration-color:rgba(0,0,0,.3);">what if</em> to watch this?</h2>
+    <div class="cta-band-right">
+      <a class="btn-ink" href="/contact/">Start a project <span class="arr">↗</span></a>
+      <span class="cta-small">Or call us: +91 99281 06169</span>
+    </div>
+  </div>
+
+  <!-- MARQUEE -->
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span class="marquee-item"><span class="marquee-sep">●</span> Let's work together.</span>
+      <span class="marquee-item"><span class="marquee-sep">●</span> Let's work together.</span>
+      <span class="marquee-item"><span class="marquee-sep">●</span> Let's work together.</span>
+      <span class="marquee-item"><span class="marquee-sep">●</span> Let's work together.</span>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  ﻿<footer>
+  <div class="footer-top">
+    <div>
+      <div class="footer-brand-logo"> <img class="footer-logo-img" loading="lazy" decoding="async" src="/sbmlogolt.webp" alt="ScratchBox.Media logo"/></div>
+      <p class="footer-tagline">We take ideas from 'what if' to 'watch this.' Your creative partner from day one.</p>
+      <div class="footer-socials">
+        <a class="social-btn" href="https://api.whatsapp.com/send?phone=919928106169" target="_blank">💬</a>
+        <a class="social-btn" href="#" target="_blank">in</a>
+        <a class="social-btn" href="#" target="_blank">ig</a>
+        <a class="social-btn" href="#" target="_blank">𝕏</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Explore</h4>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/about/">About</a></li>
+        <li><a href="/services/">Services</a></li>
+        <li><a href="/work/">Work</a></li>
+        <li><a href="/contact/">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Services</h4>
+      <ul>
+        <li><a href="#">Branding & Marketing</a></li>
+        <li><a href="#">Media Production</a></li>
+        <li><a href="#">Web & App Dev</a></li>
+        <li><a href="#">Social Media Mgmt</a></li>
+        <li><a href="#">Product Strategy</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Get In Touch</h4>
+      <div class="footer-contact-item"><span>📍</span><span>Bangalore &amp; Udaipur, India</span></div>
+      <div class="footer-contact-item"><span>📞</span><span><a href="tel:+919928106169" style="color:inherit;">+91 99281 06169</a></span></div>
+      <div class="footer-contact-item"><span>✉️</span><span><a style="color:inherit;"><span class="__cf_email__" data-cfemail="eb8c99849cab9888998a9f8883898493c5868e8f828a">grow@scratchbox.media</span></a></span></div>
+      <div style="margin-top:20px;">
+        <a class="btn-lime" href="#" onclick="openCalendly();return false;" style="font-size:13px;">Book Free 30-min Call <span class="arr">↗</span></a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-big">Crafting since 2020</div>
+  <div class="footer-bottom">
+    <span>© ScratchBox.media — All Rights Reserved 2025</span>
+    <div class="footer-bottom-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms & Conditions</a>
+      <a href="/admin/">Admin</a>
+    </div>
+  </div>
+</footer>
+
+
+
+
+
+
+
+
+<!-- Sticky bottom CTA bar (mobile) -->
+<div class="sticky-cta-bar" id="stickyCta">
+  <button class="sticky-btn-wa" onclick="window.open('https://api.whatsapp.com/send?phone=919928106169','_blank')">
+    💬 WhatsApp
+  </button>
+  <button class="sticky-btn-call" onclick="openCalendly()">
+    📅 Book Free Call
+  </button>
+</div>
+
+<!-- Progress bar -->
+<div id="progressBar"></div>
+
+<!-- Work Modal -->
+<div class="work-modal-overlay" id="workModal">
+  <div class="work-modal-box">
+    <div class="work-modal-header">
+      <div>
+        <div class="work-modal-title" id="workModalTitle">Project Preview</div>
+        <div class="work-modal-meta" id="workModalMeta">ScratchBox</div>
+      </div>
+      <div class="work-modal-actions">
+        <a class="work-modal-link" id="workModalLink" href="#" target="_blank" rel="noopener" data-track="work_see_live">See Live ↗</a>
+        <div class="work-modal-badge" id="workModalBadge">Preview</div>
+        <button class="work-modal-close" onclick="closeWorkModal()">✕</button>
+      </div>
+    </div>
+    <div class="work-modal-body" id="workModalBody"></div>
+  </div>
+</div>
+
+<!-- ========================
+     PROJECT PLANNER MODAL
+========================= -->
+<div class="planner-modal-overlay" id="plannerModal">
+  <div class="planner-box">
+    <div class="planner-header">
+      <div>
+        <div class="planner-title">🎯 Project Planner</div>
+        <div class="planner-sub">2 minutes — we'll recommend the perfect plan for you</div>
+      </div>
+      <button class="planner-close" onclick="closePlanner()">✕</button>
+    </div>
+    <div class="planner-progress-bar"><div class="planner-progress-fill" id="plannerProgress" style="width:20%"></div></div>
+
+    <div class="planner-body" id="plannerBody">
+      <!-- Step 1 -->
+      <div class="quiz-step active" id="qstep-1">
+        <div class="quiz-question">What stage is your business at?</div>
+        <div class="quiz-hint">This helps us understand your starting point.</div>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="selectOption(this,'stage','idea')">
+            <span class="quiz-option-icon">💡</span>
+            <div class="quiz-option-text"><strong>Just an idea</strong><span>I'm pre-launch, still figuring things out</span></div>
+          </button>
+          <button class="quiz-option" onclick="selectOption(this,'stage','early')">
+            <span class="quiz-option-icon">🌱</span>
+            <div class="quiz-option-text"><strong>Early-stage startup</strong><span>I've launched but need to grow</span></div>
+          </button>
+          <button class="quiz-option" onclick="selectOption(this,'stage','growing')">
+            <span class="quiz-option-icon">📈</span>
+            <div class="quiz-option-text"><strong>Growing business</strong><span>I have traction and want to scale</span></div>
+          </button>
+          <button class="quiz-option" onclick="selectOption(this,'stage','established')">
+            <span class="quiz-option-icon">🏢</span>
+            <div class="quiz-option-text"><strong>Established brand</strong><span>Refresh, reposition, or expand</span></div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="quiz-step" id="qstep-2">
+        <div class="quiz-question">What's your primary goal right now?</div>
+        <div class="quiz-hint">Pick the one that matters most.</div>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="selectOption(this,'goal','brand')">
+            <span class="quiz-option-icon">🎨</span>
+            <div class="quiz-option-text"><strong>Build a brand identity</strong><span>Logo, visuals, positioning, messaging</span></div>
+          </button>
+          <button class="quiz-option" onclick="selectOption(this,'goal','web')">
+            <span class="quiz-option-icon">🌐</span>
+            <div class="quiz-option-text"><strong>Get a high-performing website</strong><span>Design, development, SEO</span></div>
+          </button>
+          <button class="quiz-option" onclick="selectOption(this,'goal','content')">
+            <span class="quiz-option-icon">📱</span>
+            <div class="quiz-option-text"><strong>Create content that converts</strong><span>Video, social media, campaigns</span></div>
+          </button>
+          <button class="quiz-option" onclick="selectOption(this,'goal','grow')">
+            <span class="quiz-option-icon">🚀</span>
+            <div class="quiz-option-text"><strong>Grow my audience & revenue</strong><span>Ads, marketing, GTM strategy</span></div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="quiz-step" id="qstep-3">
+        <div class="quiz-question">What's your monthly budget range?</div>
+        <div class="quiz-hint">Choose the closest range.</div>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="selectOption(this,'budget','under-30k')">
+            <span class="quiz-option-icon">💸</span>
+            <div class="quiz-option-text"><strong>Under ₹30,000/mo</strong><span>Budget-focused, need essentials</span></div>
+          </button>
+          <button class="quiz-option" onclick="selectOption(this,'budget','30k-75k')">
+            <span class="quiz-option-icon">📦</span>
+            <div class="quiz-option-text"><strong>₹30,000 – ₹75,000/mo</strong><span>Ready to invest in growth</span></div>
+          </button>
+          <button class="quiz-option" onclick="selectOption(this,'budget','75k-plus')">
+            <span class="quiz-option-icon">💼</span>
+            <div class="quiz-option-text"><strong>₹75,000+/mo</strong><span>Looking for a dedicated growth partner</span></div>
+          </button>
+          <button class="quiz-option" onclick="selectOption(this,'budget','project')">
+            <span class="quiz-option-icon">🧩</span>
+            <div class="quiz-option-text"><strong>One-off project budget</strong><span>I need something specific, not ongoing</span></div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="quiz-step" id="qstep-4">
+        <div class="quiz-question">How soon do you want to start?</div>
+        <div class="quiz-hint">This helps us match the timeline.</div>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="selectOption(this,'timeline','asap')">
+            <span class="quiz-option-icon">⚡</span>
+            <div class="quiz-option-text"><strong>ASAP (within 4 weeks)</strong><span>I want to start now</span></div>
+          </button>
+          <button class="quiz-option" onclick="selectOption(this,'timeline','1-3')">
+            <span class="quiz-option-icon">🗓️</span>
+            <div class="quiz-option-text"><strong>1–3 months</strong><span>Planning ahead but soon</span></div>
+          </button>
+          <button class="quiz-option" onclick="selectOption(this,'timeline','3-6')">
+            <span class="quiz-option-icon">📅</span>
+            <div class="quiz-option-text"><strong>3–6 months</strong><span>Thinking longer-term</span></div>
+          </button>
+          <button class="quiz-option" onclick="selectOption(this,'timeline','6-plus')">
+            <span class="quiz-option-icon">🔮</span>
+            <div class="quiz-option-text"><strong>6+ months</strong><span>Just exploring options</span></div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 5 (result) -->
+      <div class="quiz-step" id="qstep-5">
+        <div class="quiz-question">Here's what we recommend:</div>
+        <div class="quiz-reco" id="quizReco">We’ll suggest a plan based on your choices.</div>
+        <div class="quiz-actions">
+          <button class="btn-lime" onclick="closePlanner();openCalendly();" style="border:none;width:100%;justify-content:center;">Book Your Free Strategy Call <span class="arr">↗</span></button>
+          <a href="https://api.whatsapp.com/send?phone=919928106169&text=Hi%20ScratchBox!%20I%20just%20completed%20your%20project%20quiz%20and%20would%20love%20to%20chat." target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;border-radius:12px;border:1.5px solid var(--border);color:var(--ink);font-weight:600;font-size:14px;text-decoration:none;">💬 Chat on WhatsApp Instead</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/assets/js/site.js" defer></script>
+</body>
+</html>
+

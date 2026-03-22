@@ -1,0 +1,91 @@
+﻿---
+layout: layouts/base.njk
+title: Work — ScratchBox.Media
+pageId: work
+---
+<section class="work-hero">
+    <div class="label" style="margin-bottom:16px;">Portfolio</div>
+    <h1 class="work-h1 reveal">Our work<br>speaks<br>loudest.</h1>
+    <div class="work-filters">
+      <button class="filter-btn active" onclick="filterWork(this,'all')">All</button>
+      <button class="filter-btn" onclick="filterWork(this,'branding')">Branding</button>
+      <button class="filter-btn" onclick="filterWork(this,'media')">Media</button>
+      <button class="filter-btn" onclick="filterWork(this,'web')">Web & App</button>
+      <button class="filter-btn" onclick="filterWork(this,'marketing')">Marketing</button>
+    </div>
+  </section>
+
+  <div class="work-masonry">
+    <div class="work-masonry-item span2 reveal" data-cat="media" data-type="video" data-title="Campaign film series — 2M+ views on launch week" data-meta="Media Production" data-src="/videos/videoContact.mp4" data-link="https://immuna.ch">
+      <div class="work-cover" style="background-image:url('CLIENTS_SBM/1.webp');"></div>
+      <div class="wmi-bg bg-a" style="display:flex;align-items:center;justify-content:center;font-size:100px;opacity:.12;">🎬</div>
+      <div class="wmi-overlay"></div>
+      <div class="wmi-hover">↗</div>
+      <div class="wmi-body"><div class="wmi-cat">Media Production</div><div class="wmi-title">Campaign film series — 2M+ views on launch week</div></div>
+    </div>
+    <div class="work-masonry-item reveal reveal-d1" data-cat="branding" data-type="slides" data-title="Complete brand identity for a D2C health startup" data-meta="Branding" data-src="https://docs.google.com/presentation/d/1zXzf_6AbpPbDxc9WuXwmccSRYtlLzPTewY4nLQHZ7DY/embed?start=false&loop=false&delayms=3000">
+      <div class="work-cover" style="background-image:url('CLIENTS_SBM/2.webp');"></div>
+      <div class="wmi-bg bg-b" style="display:flex;align-items:center;justify-content:center;font-size:80px;opacity:.12;">🎨</div>
+      <div class="wmi-overlay"></div>
+      <div class="wmi-hover">↗</div>
+      <div class="wmi-body"><div class="wmi-cat">Branding</div><div class="wmi-title">Complete brand identity for a D2C health startup</div></div>
+    </div>
+    <div class="work-masonry-item reveal reveal-d2" data-cat="web" data-type="web" data-title="High-converting SaaS landing page — 40% lift in signups" data-meta="Web Development" data-src="https://immuna.ch" data-link="https://immuna.ch">
+      <div class="work-cover" style="background-image:url('CLIENTS_SBM/3.webp');"></div>
+      <div class="wmi-bg bg-c" style="display:flex;align-items:center;justify-content:center;font-size:80px;opacity:.12;">💻</div>
+      <div class="wmi-overlay"></div>
+      <div class="wmi-hover">↗</div>
+      <div class="wmi-body"><div class="wmi-cat">Web Development</div><div class="wmi-title">High-converting SaaS landing page — 40% lift in signups</div></div>
+    </div>
+    <div class="work-masonry-item reveal" data-cat="marketing" data-type="slides" data-title="Performance campaign — 3x ROAS for e-commerce brand" data-meta="Marketing" data-src="https://docs.google.com/presentation/d/1zXzf_6AbpPbDxc9WuXwmccSRYtlLzPTewY4nLQHZ7DY/embed?start=false&loop=false&delayms=3000">
+      <div class="work-cover" style="background-image:url('CLIENTS_SBM/4.webp');"></div>
+      <div class="wmi-bg bg-d" style="display:flex;align-items:center;justify-content:center;font-size:80px;opacity:.12;">📈</div>
+      <div class="wmi-overlay"></div>
+      <div class="wmi-hover">↗</div>
+      <div class="wmi-body"><div class="wmi-cat">Marketing</div><div class="wmi-title">Performance campaign — 3x ROAS for e-commerce brand</div></div>
+    </div>
+    <div class="work-masonry-item reveal reveal-d1" data-cat="media" data-type="video" data-title="Product & lifestyle shoot for fashion label" data-meta="Media Production" data-src="/videos/videoContact.mp4">
+      <div class="work-cover" style="background-image:url('CLIENTS_SBM/5.webp');"></div>
+      <div class="wmi-bg" style="background:linear-gradient(135deg,#1f1f0d,#3d3a0a);display:flex;align-items:center;justify-content:center;font-size:80px;opacity:.12;">📸</div>
+      <div class="wmi-overlay"></div>
+      <div class="wmi-hover">↗</div>
+      <div class="wmi-body"><div class="wmi-cat">Photography</div><div class="wmi-title">Product & lifestyle shoot for fashion label</div></div>
+    </div>
+    <div class="work-masonry-item span2 reveal reveal-d2" data-cat="web" data-type="slides" data-title="Mobile app for a B2B logistics startup — from 0 to 10K users" data-meta="App Development" data-src="https://docs.google.com/presentation/d/1zXzf_6AbpPbDxc9WuXwmccSRYtlLzPTewY4nLQHZ7DY/embed?start=false&loop=false&delayms=3000">
+      <div class="work-cover" style="background-image:url('CLIENTS_SBM/6.webp');"></div>
+      <div class="wmi-bg" style="background:linear-gradient(135deg,#0d1f1f,#0a3d3d);display:flex;align-items:center;justify-content:center;font-size:100px;opacity:.12;">📱</div>
+      <div class="wmi-overlay"></div>
+      <div class="wmi-hover">↗</div>
+      <div class="wmi-body"><div class="wmi-cat">App Development</div><div class="wmi-title">Mobile app for a B2B logistics startup — from 0 to 10K users</div></div>
+    </div>
+    <div class="work-masonry-item reveal" data-cat="branding" data-type="slides" data-title="Repositioning a legacy brand for Gen Z audiences" data-meta="Brand Strategy" data-src="https://docs.google.com/presentation/d/1zXzf_6AbpPbDxc9WuXwmccSRYtlLzPTewY4nLQHZ7DY/embed?start=false&loop=false&delayms=3000">
+      <div class="work-cover" style="background-image:url('CLIENTS_SBM/7.webp');"></div>
+      <div class="wmi-bg" style="background:linear-gradient(135deg,#1f0d1f,#3d0a3a);display:flex;align-items:center;justify-content:center;font-size:80px;opacity:.12;">✍️</div>
+      <div class="wmi-overlay"></div>
+      <div class="wmi-hover">↗</div>
+      <div class="wmi-body"><div class="wmi-cat">Brand Strategy</div><div class="wmi-title">Repositioning a legacy brand for Gen Z audiences</div></div>
+    </div>
+    <div class="work-masonry-item reveal reveal-d1" data-cat="marketing" data-type="slides" data-title="Full email automation — 55% open rate, 12% click-through" data-meta="Email Marketing" data-src="https://docs.google.com/presentation/d/1zXzf_6AbpPbDxc9WuXwmccSRYtlLzPTewY4nLQHZ7DY/embed?start=false&loop=false&delayms=3000">
+      <div class="work-cover" style="background-image:url('CLIENTS_SBM/8.webp');"></div>
+      <div class="wmi-bg" style="background:linear-gradient(135deg,#0d1a1f,#0a2d3d);display:flex;align-items:center;justify-content:center;font-size:80px;opacity:.12;">📧</div>
+      <div class="wmi-overlay"></div>
+      <div class="wmi-hover">↗</div>
+      <div class="wmi-body"><div class="wmi-cat">Email Marketing</div><div class="wmi-title">Full email automation — 55% open rate, 12% click-through</div></div>
+    </div>
+  </div>
+
+  <!-- CTA BAND -->
+  <div class="cta-band">
+    <h2>Want work like this for your brand?</h2>
+    <div class="cta-band-right">
+      <a class="btn-ink" href="/contact/">Let's talk <span class="arr">↗</span></a>
+      <span class="cta-small">Free 30-min strategy call</span>
+    </div>
+  </div>
+
+  {% include "partials/footer.njk" %}
+
+
+
+
+
