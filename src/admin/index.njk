@@ -1,0 +1,27 @@
+﻿---
+layout: layouts/base.njk
+title: Admin — ScratchBox.Media
+pageId: admin
+---
+<section class="admin-hero">
+    <div class="label" style="margin-bottom:12px;">Admin</div>
+    <h1 class="admin-h1 reveal">Submissions Dashboard</h1>
+  </section>
+  <div class="admin-card">
+    <div id="adminLogin" class="admin-login">
+      <input id="adminUser" placeholder="Username"/>
+      <input id="adminPass" type="password" placeholder="Password"/>
+      <button onclick="adminLogin()">Login</button>
+      <div id="adminErr" style="color:#b00020;font-size:12px;"></div>
+    </div>
+    <div id="adminTableWrap" style="display:none;">
+      <table class="admin-table" id="adminTable">
+        <thead><tr><th>Type</th><th>Created</th><th>Data</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+
+
+

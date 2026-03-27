@@ -1,0 +1,14 @@
+{
+  "name": "scratchbox-media",
+  "private": true,
+  "scripts": {
+    "build": "eleventy",
+    "dev": "eleventy --serve",
+    "clean": "rmdir /S /Q _site",
+    "serve": "eleventy && node backend/server.js",
+    "serve:prod": "eleventy && pm2 start ecosystem.config.js --env production"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^3.1.5"
+  }
+}

@@ -1,0 +1,111 @@
+﻿---
+layout: layouts/base.njk
+title: Pricing — ScratchBox.Media
+pageId: pricing
+---
+<section class="pricing-hero">
+    <div class="label" style="margin-bottom:16px;">Transparent Pricing</div>
+    <h1 class="pricing-h1 reveal">Know exactly what you're paying for.<br>Always.</h1>
+    <p class="pricing-sub reveal reveal-d1">No hidden fees. No surprise invoices. Pick the plan that fits where you are, and we'll take it from there.</p>
+    <div class="pricing-toggle reveal reveal-d2">
+      <button class="ptoggle-btn active" onclick="setPricingPeriod('monthly',this)">Monthly</button>
+      <button class="ptoggle-btn" onclick="setPricingPeriod('quarterly',this)">Quarterly <span style="background:var(--lime);color:var(--ink);font-size:10px;padding:2px 8px;border-radius:10px;margin-left:4px;">Save 15%</span></button>
+    </div>
+  </section>
+
+  <div class="pricing-grid">
+    <!-- Starter -->
+    <div class="pricing-card reveal">
+      <div class="pricing-tier">Starter</div>
+      <div class="pricing-name">Launch</div>
+      <div class="pricing-tagline">Perfect for early-stage startups</div>
+      <div class="pricing-price">
+        <span class="pricing-amt" id="p1amt">₹29,999</span>
+        <span class="pricing-per">/month</span>
+      </div>
+      <hr class="pricing-divider"/>
+      <ul class="pricing-features">
+        <li><span class="pf-check">✓</span>Brand Strategy Session</li>
+        <li><span class="pf-check">✓</span>Logo & Basic Visual Identity</li>
+        <li><span class="pf-check">✓</span>5-page Website Design & Dev</li>
+        <li><span class="pf-check">✓</span>8 Social Media Posts/Month</li>
+        <li><span class="pf-check">✓</span>Monthly Analytics Report</li>
+        <li><span class="pf-check">✓</span>Email & WhatsApp Support</li>
+      </ul>
+      <button class="pricing-btn" onclick="openProjectForm()" data-track="pricing_get_started" data-track-label="launch">Get Started →</button>
+    </div>
+
+    <!-- Growth (featured) -->
+    <div class="pricing-card featured reveal reveal-d1">
+      <div class="pricing-popular">Most Popular</div>
+      <div class="pricing-tier">Growth</div>
+      <div class="pricing-name">Scale</div>
+      <div class="pricing-tagline">For brands ready to accelerate</div>
+      <div class="pricing-price">
+        <span class="pricing-amt" id="p2amt">₹59,999</span>
+        <span class="pricing-per">/month</span>
+      </div>
+      <hr class="pricing-divider"/>
+      <ul class="pricing-features">
+        <li><span class="pf-check">✓</span>Full Brand Identity System</li>
+        <li><span class="pf-check">✓</span>Custom Website + SEO Setup</li>
+        <li><span class="pf-check">✓</span>20 Social Media Posts/Month</li>
+        <li><span class="pf-check">✓</span>2 Short-form Brand Videos/Month</li>
+        <li><span class="pf-check">✓</span>Paid Ad Campaign Management</li>
+        <li><span class="pf-check">✓</span>Email Marketing Automation</li>
+        <li><span class="pf-check">✓</span>Bi-weekly Strategy Calls</li>
+        <li><span class="pf-check">✓</span>Dedicated Account Manager</li>
+      </ul>
+      <button class="pricing-btn" onclick="openProjectForm()" data-track="pricing_get_started" data-track-label="scale">Get Started →</button>
+    </div>
+
+    <!-- Enterprise -->
+    <div class="pricing-card reveal reveal-d2">
+      <div class="pricing-tier">Enterprise</div>
+      <div class="pricing-name">Partner</div>
+      <div class="pricing-tagline">Full-service creative partnership</div>
+      <div class="pricing-price">
+        <span class="pricing-amt" id="p3amt">Custom</span>
+        <span class="pricing-per"></span>
+      </div>
+      <hr class="pricing-divider"/>
+      <ul class="pricing-features">
+        <li><span class="pf-check">✓</span>Everything in Scale, plus:</li>
+        <li><span class="pf-check">✓</span>Full-scale Media Production</li>
+        <li><span class="pf-check">✓</span>App / Product Development</li>
+        <li><span class="pf-check">✓</span>High Volume Content Creation</li>
+        <li><span class="pf-check">✓</span>Launch Strategy & GTM</li>
+        <li><span class="pf-check">✓</span>Influencer Campaign Management</li>
+        <li><span class="pf-check">✓</span>Weekly Strategy Sessions</li>
+        <li><span class="pf-check">✓</span>Priority 24/7 Support</li>
+      </ul>
+      <button class="pricing-btn" onclick="openProjectForm()" data-track="pricing_get_started" data-track-label="partner">Let's Talk →</button>
+    </div>
+  </div>
+
+  <p class="pricing-note">All plans come with a <strong>free 30-minute strategy call</strong> before you commit. Not sure which plan fits? <a href="#" onclick="openPlanner()">Take our 2-min brand quiz →</a></p>
+
+  <div class="pricing-faq dark-section">
+    <h2 class="pricing-faq-h2 reveal">Pricing questions, answered.</h2>
+    <div class="pfaq-grid">
+      <div class="pfaq-item reveal"><div class="pfaq-q">Do I have to commit long-term?</div><div class="pfaq-a">We recommend a minimum of 3 months to see real results, but there's no lock-in. We believe in earning your business every month through results, not contracts.</div></div>
+      <div class="pfaq-item reveal reveal-d1"><div class="pfaq-q">Can I upgrade or downgrade?</div><div class="pfaq-a">Absolutely. As your business grows, your plan can grow with it. Upgrades take effect the next billing cycle, and downgrades are processed with 30 days notice.</div></div>
+      <div class="pfaq-item reveal"><div class="pfaq-q">What if I just need one thing?</div><div class="pfaq-a">We also do one-off projects — like a single website, a brand identity, or a video campaign. Book a call and we'll scope it out and give you a fixed-price quote.</div></div>
+      <div class="pfaq-item reveal reveal-d1"><div class="pfaq-q">Are these prices in INR?</div><div class="pfaq-a">Yes, all prices are in Indian Rupees. We work with clients globally too — for international clients, we price in USD. Book a call and we'll sort out the details.</div></div>
+    </div>
+  </div>
+
+  <div class="cta-band">
+    <h2>Figure out your best plan fit</h2>
+    <div class="cta-band-right">
+      <button class="btn-ink" onclick="openPlanner()" style="border:none;">Take the Project Quiz <span class="arr">↗</span></button>
+      <span class="cta-small">2 minutes · No commitment</span>
+    </div>
+  </div>
+
+  {% include "partials/footer.njk" %}
+
+
+
+
+
