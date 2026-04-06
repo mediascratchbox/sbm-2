@@ -201,7 +201,7 @@ function closeVideoModal() {
 }
 document.getElementById('videoModal').addEventListener('click', function(e) {
   if(e.target === this) closeVideoModal();
-});
+})
 
 /* ===========================
    PROJECT FORM MODAL
