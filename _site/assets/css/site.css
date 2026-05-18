@@ -966,7 +966,11 @@ footer{
 .work-cover{
   position:absolute;inset:0;background-size:cover;background-position:center;
   z-index:0;
+  background-color:#161616;
+  opacity:0;
+  transition:opacity .35s ease;
 }
+.work-cover.is-loaded{opacity:1;}
 .work-masonry-item .wmi-bg{z-index:0;}
 .work-modal-overlay{
   position:fixed;inset:0;z-index:8800;
