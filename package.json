@@ -4,11 +4,14 @@
   "scripts": {
     "build": "eleventy",
     "dev": "eleventy --serve",
+    "dev:full": "start \"sbm-eleventy\" /B cmd /c \"eleventy --watch\" && node backend/server.js",
     "clean": "rmdir /S /Q _site",
     "serve": "eleventy && node backend/server.js",
     "serve:prod": "eleventy && pm2 start ecosystem.config.js --env production"
   },
   "devDependencies": {
-    "@11ty/eleventy": "^3.1.5"
+    "@11ty/eleventy": "^3.1.5",
+    "sharp": "^0.34.5",
+    "svgo": "^4.0.1"
   }
 }

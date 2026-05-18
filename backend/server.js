@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const compression = require("compression");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 const crypto = require("crypto");
@@ -36,10 +37,21 @@ app.use(
 );
 app.use(express.json({ limit: "1mb" }));
 app.use(cookieParser());
+app.use(compression({ threshold: 1024 }));
 
 // Serve the built site so frontend and API share the same origin (local + production).
 const staticRoot = path.join(__dirname, "..", "_site");
-app.use(express.static(staticRoot));
+app.use(
+  express.static(staticRoot, {
+    maxAge: "7d",
+    etag: true,
+    setHeaders: (res, filePath) => {
+      if (/\.(?:css|js|webp|png|jpg|jpeg|svg|mp4|webm)$/i.test(filePath)) {
+        res.setHeader("Cache-Control", "public, max-age=604800, immutable");
+      }
+    },
+  })
+);
 
 const adminSessions = new Set();
 const ADMIN_COOKIE = "sbm_admin";

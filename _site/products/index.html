@@ -473,14 +473,23 @@
       </div>
 
       <!-- Step 5 (result) -->
-      <div class="quiz-step" id="qstep-5">
-        <div class="quiz-question">Here's what we recommend:</div>
-        <div class="quiz-reco" id="quizReco">We’ll suggest a plan based on your choices.</div>
-        <div class="quiz-actions">
-          <button class="btn-lime" onclick="closePlanner();openCalendly();" style="border:none;width:100%;justify-content:center;">Book Your Free Strategy Call <span class="arr">↗</span></button>
-          <a href="https://api.whatsapp.com/send?phone=919928106169&text=Hi%20ScratchBox!%20I%20just%20completed%20your%20project%20quiz%20and%20would%20love%20to%20chat." target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;border-radius:12px;border:1.5px solid var(--border);color:var(--ink);font-weight:600;font-size:14px;text-decoration:none;">💬 Chat on WhatsApp Instead</a>
+      <div class="quiz-step" id="qstep-result">
+        <div class="quiz-result">
+          <div class="quiz-result-icon">✅</div>
+          <div class="quiz-result-title" id="resultTitle">Here’s what we recommend</div>
+          <div class="quiz-result-desc" id="resultDesc">We’ll suggest a plan based on your choices.</div>
+          <div class="quiz-result-tags" id="resultTags"></div>
+          <div class="quiz-result-actions">
+            <button class="btn-lime" onclick="closePlanner();openCalendly();" style="border:none;width:100%;justify-content:center;" data-track="quiz_result_cta" data-track-label="book_call">Book Your Free Strategy Call <span class="arr">↗</span></button>
+            <a href="https://api.whatsapp.com/send?phone=919928106169&text=Hi%20ScratchBox!%20I%20just%20completed%20your%20project%20quiz%20and%20would%20love%20to%20chat." target="_blank" data-track="quiz_result_cta" data-track-label="whatsapp" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;border-radius:12px;border:1.5px solid var(--border);color:var(--ink);font-weight:600;font-size:14px;text-decoration:none;">💬 Chat on WhatsApp Instead</a>
+          </div>
         </div>
       </div>
+    </div>
+    <div class="quiz-nav" id="quizNav">
+      <button class="quiz-back" id="quizBack" onclick="quizBack()" style="display:none;">← Back</button>
+      <div class="quiz-step-counter" id="stepCounter">Step 1 of 4</div>
+      <button class="quiz-next" id="quizNext" onclick="quizNext()" disabled>Next <span class="arr">↗</span></button>
     </div>
   </div>
 </div>

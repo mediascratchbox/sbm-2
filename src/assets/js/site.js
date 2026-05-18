@@ -42,6 +42,35 @@ function initTrackingClicks() {
   });
 }
 
+function initLazyWorkCovers() {
+  const covers = Array.from(document.querySelectorAll('.work-cover[data-cover]'));
+  if(!covers.length) return;
+  const loadCover = (cover) => {
+    const src = cover.getAttribute('data-cover');
+    if(!src) return;
+    const img = new Image();
+    img.decoding = 'async';
+    img.src = src;
+    img.onload = () => {
+      cover.style.backgroundImage = "url('" + src + "')";
+      cover.classList.add('is-loaded');
+      cover.removeAttribute('data-cover');
+    };
+  };
+  if(!('IntersectionObserver' in window)) {
+    covers.forEach(loadCover);
+    return;
+  }
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if(!entry.isIntersecting) return;
+      loadCover(entry.target);
+      io.unobserve(entry.target);
+    });
+  }, { rootMargin: '300px 0px' });
+  covers.forEach((cover) => io.observe(cover));
+}
+
 /* ===========================
    ADMIN DASHBOARD (FRONTEND)
 =========================== */
@@ -60,9 +89,17 @@ async function adminLogin() {
       await loadAdminSubmissions();
       return;
     }
+    if(res.status === 404) {
+      err.textContent = 'Admin API not found. Run backend server and open this page on that server.';
+      return;
+    }
+    if(res.status >= 500) {
+      err.textContent = 'Admin credentials are not configured on server.';
+      return;
+    }
     err.textContent = 'Invalid credentials';
   } catch (e) {
-    err.textContent = 'Login failed';
+    err.textContent = 'Login failed. Check if backend server is running.';
   }
 }
 
@@ -190,7 +227,7 @@ function openVideoModal() {
   trackEvent('founder_video_open');
   const frame = document.getElementById('videoFrame');
   if(frame && !frame.dataset.loaded) {
-    frame.innerHTML = '<video src="/videos/videoHome.mp4" poster="/videos/videoHome-poster.jpg" autoplay playsinline controls></video>';
+    frame.innerHTML = '<video src="/videos/videoHome.mp4" poster="/videos/videoHome-poster.jpg" preload="none" autoplay playsinline controls></video>';
     frame.dataset.loaded = '1';
   }
   if(typeof gtag !== 'undefined') gtag('event','founder_video_viewed',{event_category:'Engagement'});
@@ -230,6 +267,7 @@ const quizAnswers = {};
 function openPlanner() {
   document.getElementById('plannerModal').classList.add('open');
   document.body.style.overflow = 'hidden';
+  trackEvent('quiz_open');
   resetQuiz();
 }
 function closePlanner() {
@@ -258,6 +296,7 @@ function selectOption(btn, key, val) {
   step.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
   btn.classList.add('selected');
   quizAnswers[key] = val;
+  trackEvent('quiz_option_select', { question: key, answer: val, step: currentStep });
   document.getElementById('quizNext').disabled = false;
   // little bounce feedback
   btn.style.transform = 'translateX(8px)';
@@ -265,6 +304,7 @@ function selectOption(btn, key, val) {
 }
 
 function quizNext() {
+  trackEvent('quiz_next', { step: currentStep });
   if(currentStep < totalSteps) {
     document.getElementById('qstep-' + currentStep).classList.remove('active');
     currentStep++;
@@ -283,11 +323,18 @@ function quizNext() {
     document.getElementById('qstep-result').classList.add('active');
     document.getElementById('plannerProgress').style.width = '100%';
     document.getElementById('quizNav').style.display = 'none';
+    trackEvent('quiz_complete', {
+      stage: quizAnswers.stage || '',
+      goal: quizAnswers.goal || '',
+      budget: quizAnswers.budget || '',
+      timeline: quizAnswers.timeline || ''
+    });
     buildResult();
   }
 }
 
 function quizBack() {
+  trackEvent('quiz_back', { step: currentStep });
   document.getElementById('qstep-' + currentStep).classList.remove('active');
   currentStep--;
   document.getElementById('qstep-' + currentStep).classList.add('active');
@@ -418,14 +465,27 @@ function openWorkModal(item) {
   }
   initTrackingClicks();
   body.innerHTML = '';
+  const isDirectVideoFile = (url) => {
+    if(!url) return false;
+    return /\.(mp4|webm|ogg)(\?|#|$)/i.test(url);
+  };
   if(type === 'video') {
-    const v = document.createElement('video');
-    v.src = src;
-    v.controls = true;
-    v.autoplay = true;
-    v.muted = false;
-    v.playsInline = true;
-    body.appendChild(v);
+    if(isDirectVideoFile(src)) {
+      const v = document.createElement('video');
+      v.src = src;
+      v.controls = true;
+      v.autoplay = true;
+      v.muted = false;
+      v.playsInline = true;
+      body.appendChild(v);
+    } else {
+      const iframe = document.createElement('iframe');
+      iframe.src = src;
+      iframe.title = t;
+      iframe.setAttribute('allowfullscreen','');
+      iframe.setAttribute('allow','autoplay; fullscreen; encrypted-media; picture-in-picture');
+      body.appendChild(iframe);
+    }
   } else if(type === 'image') {
     const img = document.createElement('img');
     img.src = src;
@@ -536,7 +596,7 @@ function handleContactVideoClick(e) {
     video.poster = '/videos/videoContact-poster.jpg';
     video.setAttribute('playsinline','');
     video.playsInline = true;
-    video.preload = 'metadata';
+    video.preload = 'none';
     video.controls = false;
     video.muted = false;
     thumb.prepend(video);
@@ -592,6 +652,7 @@ function initDarkCursorZones() {
 document.addEventListener('DOMContentLoaded', refreshCursorTargets);
 document.addEventListener('DOMContentLoaded', initDarkCursorZones);
 document.addEventListener('DOMContentLoaded', initTrackingClicks);
+document.addEventListener('DOMContentLoaded', initLazyWorkCovers);
 setTimeout(refreshCursorTargets, 500);
 setTimeout(initDarkCursorZones, 500);
 setTimeout(initTrackingClicks, 500);
