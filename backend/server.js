@@ -74,6 +74,33 @@ const submissionSchema = new mongoose.Schema(
 
 const Submission = mongoose.model("Submission", submissionSchema);
 
+const GROWTH_PLAN_REQUIRED_FIELDS = ["name", "email", "company", "role", "industry", "objective", "annual_revenue", "timeline"];
+
+function cleanText(value, maxLength = 500) {
+  return typeof value === "string" ? value.trim().slice(0, maxLength) : "";
+}
+
+function scoreGrowthPlan(data) {
+  let score = 0;
+  const reasons = [];
+  const projectBudget = cleanText(data.project_budget, 40);
+  const retainerBudget = cleanText(data.retainer_budget, 40);
+  const revenue = cleanText(data.annual_revenue, 40);
+  const timeline = cleanText(data.timeline, 40);
+  const role = cleanText(data.role, 40);
+  const industry = cleanText(data.industry, 40);
+  const message = cleanText(data.message, 3000);
+
+  if (["3-5l", "5-10l", "10l-plus", "2-3l", "3-5l", "5l-plus"].includes(projectBudget) || ["2-3l", "3-5l", "5l-plus"].includes(retainerBudget)) { score += 5; reasons.push("investment"); }
+  if (["5-25cr", "25-100cr", "100cr-plus"].includes(revenue)) { score += 5; reasons.push("company-size"); }
+  if (["immediately", "within-30-days"].includes(timeline)) { score += 5; reasons.push("urgency"); }
+  if (message.length >= 80) { score += 5; reasons.push("problem-context"); }
+  if (["Founder", "CEO", "CMO", "Marketing Head", "Growth Head"].includes(role)) { score += 5; reasons.push("decision-maker"); }
+  if (["saas", "d2c", "healthcare", "b2b", "growing-business"].includes(industry)) { score += 5; reasons.push("icp-fit"); }
+
+  return { score, reasons, priority: score >= 24 ? "sales-priority" : score >= 18 ? "sales-nurture" : "nurture" };
+}
+
 app.get("/health", (_req, res) => res.json({ ok: true }));
 
 app.get("/adminAccess", (req, res) => {
@@ -166,9 +193,23 @@ app.get("/api/admin/submissions", async (req, res) => {
 
 app.post("/api/contact", async (req, res) => {
   try {
+    const data = req.body || {};
+    const isGrowthPlan = Boolean(data.objective || data.annual_revenue || data.project_budget || data.retainer_budget);
+    if (isGrowthPlan) {
+      const missing = GROWTH_PLAN_REQUIRED_FIELDS.filter((field) => !cleanText(data[field], 200));
+      if (missing.length) return res.status(400).json({ ok: false, error: "Missing required fields" });
+      if (!/^\S+@\S+\.\S+$/.test(cleanText(data.email, 254))) return res.status(400).json({ ok: false, error: "Invalid email" });
+      data.name = cleanText(data.name, 120);
+      data.email = cleanText(data.email, 254);
+      data.company = cleanText(data.company, 160);
+      data.website = cleanText(data.website, 300);
+      data.phone = cleanText(data.phone, 50);
+      data.message = cleanText(data.message, 3000);
+      data.lead_score = scoreGrowthPlan(data);
+    }
     const payload = {
       type: "contact",
-      data: req.body || {},
+      data,
       page: req.headers["x-page"] || "",
       userAgent: req.headers["user-agent"] || "",
     };

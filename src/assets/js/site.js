@@ -40,6 +40,16 @@ function initTrackingClicks() {
     });
     el._trackBound = true;
   });
+  document.querySelectorAll('a[href^="tel:"]').forEach(el => {
+    if(el._conversionBound) return;
+    el.addEventListener('click', () => trackEvent('phone_click', { location: window.location.pathname }));
+    el._conversionBound = true;
+  });
+  document.querySelectorAll('a[href*="whatsapp.com"]').forEach(el => {
+    if(el._conversionBound) return;
+    el.addEventListener('click', () => trackEvent('whatsapp_click', { location: window.location.pathname }));
+    el._conversionBound = true;
+  });
 }
 
 function initLazyWorkCovers() {
@@ -422,8 +432,14 @@ function filterWork(btn, cat) {
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   trackEvent('work_filter', {label: cat});
-  document.querySelectorAll('.work-masonry-item').forEach(item => {
-    if (cat === 'all' || item.getAttribute('data-cat') === cat) {
+  const caseTags = [
+    ['launch', 'content', 'brand'], ['d2c', 'brand'], ['saas', 'healthcare', 'growth'],
+    ['d2c', 'growth', 'content'], ['d2c', 'content'], ['healthcare', 'launch', 'content'],
+    ['brand'], ['d2c', 'growth'], ['content'], ['growth', 'content'], ['content'],
+    ['launch', 'content'], ['saas', 'growth'], ['d2c', 'brand'], ['content'], ['growth'], ['healthcare', 'content']
+  ];
+  document.querySelectorAll('.work-masonry-item').forEach((item, index) => {
+    if (cat === 'all' || (caseTags[index] || []).includes(cat)) {
       item.style.display = '';
       setTimeout(() => item.style.opacity = '1', 10);
     } else {
@@ -523,34 +539,63 @@ document.addEventListener('DOMContentLoaded', () => {
 /* ===========================
    CONTACT FORM
 =========================== */
-function handleSubmit(e) {
+async function handleGrowthPlanSubmit(e) {
   e.preventDefault();
   const btn = e.target.querySelector('.form-submit');
-  btn.innerHTML = '? Message Sent! We\'ll be in touch soon.';
-  btn.style.background = '#1a5a1a';
-  trackEvent('contact_form_submit');
-  if(typeof gtag !== 'undefined') gtag('event','form_submitted',{event_category:'Lead'});
-  if(typeof fbq !== 'undefined') fbq('track','CompleteRegistration');
   const form = e.target;
+  const status = form.querySelector('.growth-plan-status');
+  const original = btn.innerHTML;
+  if (!form.checkValidity()) { form.reportValidity(); return; }
+  btn.disabled = true;
+  btn.textContent = 'Sending your brief…';
+  if (status) status.textContent = '';
   const payload = {
-    first_name: form.querySelector('[name=\"first_name\"]')?.value || '',
-    last_name: form.querySelector('[name=\"last_name\"]')?.value || '',
+    name: form.querySelector('[name=\"name\"]')?.value.trim() || '',
     email: form.querySelector('[name=\"email\"]')?.value || '',
+    company: form.querySelector('[name=\"company\"]')?.value.trim() || '',
+    website: form.querySelector('[name=\"website\"]')?.value.trim() || '',
+    role: form.querySelector('[name=\"role\"]')?.value || '',
     phone: form.querySelector('[name=\"phone\"]')?.value || '',
-    interest: form.querySelector('[name=\"interest\"]')?.value || '',
-    message: form.querySelector('[name=\"message\"]')?.value || '',
+    industry: form.querySelector('[name=\"industry\"]')?.value || '',
+    objective: form.querySelector('[name=\"objective\"]')?.value || '',
+    annual_revenue: form.querySelector('[name=\"annual_revenue\"]')?.value || '',
+    project_budget: form.querySelector('[name=\"project_budget\"]')?.value || '',
+    retainer_budget: form.querySelector('[name=\"retainer_budget\"]')?.value || '',
+    timeline: form.querySelector('[name=\"timeline\"]')?.value || '',
+    message: form.querySelector('[name=\"message\"]')?.value.trim() || '',
+    source: form.querySelector('[name=\"source\"]')?.value || 'website',
+    landing_page: document.referrer || window.location.href,
   };
-  fetch('/api/contact', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-Page': 'contact' },
-    body: JSON.stringify(payload)
-  }).catch(() => {});
-  setTimeout(() => {
-    btn.innerHTML = 'Send Message <span class="arr">?</span>';
-    btn.style.background = '';
-    e.target.reset();
-  }, 4000);
+  try {
+    const response = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Page': window.location.pathname }, body: JSON.stringify(payload) });
+    if (!response.ok) throw new Error('Submission failed');
+    btn.textContent = 'Growth Plan received';
+    btn.style.background = '#1a5a1a';
+    if (status) status.textContent = 'Thanks — we have your brief and will be in touch shortly.';
+    trackEvent('growth_plan_submit');
+    if(typeof gtag !== 'undefined') gtag('event', 'generate_lead', { event_category: 'Lead', lead_source: payload.source, industry: payload.industry, objective: payload.objective });
+    if(typeof fbq !== 'undefined') fbq('track', 'Lead');
+    form.reset();
+  } catch (error) {
+    btn.innerHTML = original;
+    if (status) status.textContent = 'We could not send your brief. Please try again or contact us directly.';
+  } finally { btn.disabled = false; }
 }
+
+function prefillGrowthPlan() {
+  const form = document.querySelector('.growth-plan-form');
+  if (!form) return;
+  const params = new URLSearchParams(window.location.search);
+  const industry = params.get('industry');
+  const solution = params.get('solution');
+  const objectiveMap = { build: 'brand-engine', launch: 'launch-engine', grow: 'growth-engine', scale: 'scale-partnership' };
+  const industrySelect = form.querySelector('[name="industry"]');
+  const objectiveSelect = form.querySelector('[name="objective"]');
+  if (industry && industrySelect && [...industrySelect.options].some(option => option.value === industry)) industrySelect.value = industry;
+  const selectedObjective = solution || objectiveMap[params.get('objective')] || params.get('objective');
+  if (selectedObjective && objectiveSelect && [...objectiveSelect.options].some(option => option.value === selectedObjective)) objectiveSelect.value = selectedObjective;
+}
+document.addEventListener('DOMContentLoaded', prefillGrowthPlan);
 
 
 function handleProjectSubmit(e) {
