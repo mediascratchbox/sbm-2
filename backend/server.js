@@ -65,6 +65,15 @@ const submissionSchema = new mongoose.Schema(
   {
     type: { type: String, enum: ["contact", "project"], required: true },
     data: { type: Object, required: true },
+    crm: {
+      status: { type: String, default: "new" },
+      owner: { type: String, default: "" },
+      followUpAt: { type: Date, default: null },
+      opportunityValue: { type: Number, default: null },
+      lostReason: { type: String, default: "" },
+      notes: [{ body: String, createdAt: { type: Date, default: Date.now } }],
+      updatedAt: { type: Date, default: Date.now },
+    },
     page: { type: String, default: "" },
     userAgent: { type: String, default: "" },
     createdAt: { type: Date, default: Date.now },
@@ -73,11 +82,38 @@ const submissionSchema = new mongoose.Schema(
 );
 
 const Submission = mongoose.model("Submission", submissionSchema);
+const CRM_STATUSES = ["new", "qualified", "discovery-booked", "proposal", "negotiation", "won", "lost", "nurture"];
 
 const GROWTH_PLAN_REQUIRED_FIELDS = ["name", "email", "company", "role", "industry", "objective", "annual_revenue", "timeline"];
 
 function cleanText(value, maxLength = 500) {
   return typeof value === "string" ? value.trim().slice(0, maxLength) : "";
+}
+
+function cleanAttribution(value) {
+  const attribution = value && typeof value === "object" ? value : {};
+  const cleanTouch = (touch) => {
+    const source = touch && typeof touch === "object" ? touch : {};
+    return {
+      utm_source: cleanText(source.utm_source, 120),
+      utm_medium: cleanText(source.utm_medium, 120),
+      utm_campaign: cleanText(source.utm_campaign, 180),
+      utm_content: cleanText(source.utm_content, 180),
+      utm_term: cleanText(source.utm_term, 180),
+      gclid: cleanText(source.gclid, 500),
+      fbclid: cleanText(source.fbclid, 500),
+      li_fat_id: cleanText(source.li_fat_id, 500),
+      landing_page: cleanText(source.landing_page, 1000),
+      referrer: cleanText(source.referrer, 1000),
+      captured_at: cleanText(source.captured_at, 50),
+    };
+  };
+  return {
+    first_touch: cleanTouch(attribution.first_touch),
+    latest_touch: cleanTouch(attribution.latest_touch),
+    latest_page: cleanText(attribution.latest_page, 1000),
+    form_page: cleanText(attribution.form_page, 1000),
+  };
 }
 
 function scoreGrowthPlan(data) {
@@ -191,22 +227,88 @@ app.get("/api/admin/submissions", async (req, res) => {
   res.json({ ok: true, items });
 });
 
+function normaliseCrm(crm = {}) {
+  return {
+    status: CRM_STATUSES.includes(crm.status) ? crm.status : "new",
+    owner: cleanText(crm.owner, 120),
+    followUpAt: crm.followUpAt || null,
+    opportunityValue: Number.isFinite(crm.opportunityValue) ? crm.opportunityValue : null,
+    lostReason: cleanText(crm.lostReason, 500),
+    notes: Array.isArray(crm.notes) ? crm.notes : [],
+    updatedAt: crm.updatedAt || null,
+  };
+}
+
+function escapeRegex(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+app.get("/api/admin/leads", async (req, res) => {
+  if (!isAuthed(req)) return res.status(401).json({ ok: false });
+  const filters = { type: { $in: ["contact", "project"] } };
+  const status = cleanText(req.query.status, 40);
+  const source = cleanText(req.query.source, 120);
+  const priority = cleanText(req.query.priority, 40);
+  const search = cleanText(req.query.search, 120);
+  if (status && status !== "all" && CRM_STATUSES.includes(status)) filters["crm.status"] = status;
+  if (source && source !== "all") filters["data.source"] = source;
+  if (priority && priority !== "all") filters["data.lead_score.priority"] = priority;
+  if (search) {
+    const pattern = new RegExp(escapeRegex(search), "i");
+    filters.$or = [{ "data.name": pattern }, { "data.email": pattern }, { "data.company": pattern }];
+  }
+  const items = await Submission.find(filters).sort({ createdAt: -1 }).limit(500).lean();
+  const leads = items.map((item) => ({ ...item, crm: normaliseCrm(item.crm) }));
+  const stats = leads.reduce((result, lead) => {
+    result.total += 1;
+    if (lead.crm.status === "new") result.new += 1;
+    if (["qualified", "discovery-booked", "proposal", "negotiation"].includes(lead.crm.status)) result.active += 1;
+    if (lead.crm.status === "won") result.won += 1;
+    if (lead.data?.lead_score?.priority === "sales-priority") result.priority += 1;
+    return result;
+  }, { total: 0, new: 0, active: 0, won: 0, priority: 0 });
+  res.json({ ok: true, items: leads, stats, statuses: CRM_STATUSES });
+});
+
+app.patch("/api/admin/leads/:id", async (req, res) => {
+  if (!isAuthed(req)) return res.status(401).json({ ok: false });
+  const updates = req.body || {};
+  const existing = await Submission.findById(req.params.id);
+  if (!existing) return res.status(404).json({ ok: false, error: "Lead not found" });
+  const crm = normaliseCrm(existing.crm?.toObject?.() || existing.crm || {});
+  if (CRM_STATUSES.includes(updates.status)) crm.status = updates.status;
+  if (typeof updates.owner === "string") crm.owner = cleanText(updates.owner, 120);
+  if (typeof updates.lostReason === "string") crm.lostReason = cleanText(updates.lostReason, 500);
+  if (updates.followUpAt === "") crm.followUpAt = null;
+  else if (typeof updates.followUpAt === "string" && !Number.isNaN(Date.parse(updates.followUpAt))) crm.followUpAt = new Date(updates.followUpAt);
+  if (updates.opportunityValue === "") crm.opportunityValue = null;
+  else if (Number.isFinite(Number(updates.opportunityValue)) && Number(updates.opportunityValue) >= 0) crm.opportunityValue = Number(updates.opportunityValue);
+  const note = cleanText(updates.note, 3000);
+  if (note) crm.notes.push({ body: note, createdAt: new Date() });
+  crm.updatedAt = new Date();
+  existing.crm = crm;
+  await existing.save();
+  res.json({ ok: true, item: { ...existing.toObject(), crm: normaliseCrm(existing.crm.toObject?.() || existing.crm) } });
+});
+
 app.post("/api/contact", async (req, res) => {
   try {
     const data = req.body || {};
-    const isGrowthPlan = Boolean(data.objective || data.annual_revenue || data.project_budget || data.retainer_budget);
-    if (isGrowthPlan) {
-      const missing = GROWTH_PLAN_REQUIRED_FIELDS.filter((field) => !cleanText(data[field], 200));
-      if (missing.length) return res.status(400).json({ ok: false, error: "Missing required fields" });
-      if (!/^\S+@\S+\.\S+$/.test(cleanText(data.email, 254))) return res.status(400).json({ ok: false, error: "Invalid email" });
-      data.name = cleanText(data.name, 120);
-      data.email = cleanText(data.email, 254);
-      data.company = cleanText(data.company, 160);
-      data.website = cleanText(data.website, 300);
-      data.phone = cleanText(data.phone, 50);
-      data.message = cleanText(data.message, 3000);
-      data.lead_score = scoreGrowthPlan(data);
-    }
+    const isGrowthPlan = req.get("x-lead-form") === "growth-plan";
+    if (!isGrowthPlan) return res.status(400).json({ ok: false, error: "Outdated form. Please refresh the page and submit the Growth Plan form again." });
+    const missing = GROWTH_PLAN_REQUIRED_FIELDS.filter((field) => !cleanText(data[field], 200));
+    if (missing.length) return res.status(400).json({ ok: false, error: "Missing required fields" });
+    if (!/^\S+@\S+\.\S+$/.test(cleanText(data.email, 254))) return res.status(400).json({ ok: false, error: "Invalid email" });
+    data.name = cleanText(data.name, 120);
+    data.email = cleanText(data.email, 254);
+    data.company = cleanText(data.company, 160);
+    data.website = cleanText(data.website, 300);
+    data.phone = cleanText(data.phone, 50);
+    data.message = cleanText(data.message, 3000);
+    data.source = cleanText(data.source, 120);
+    data.landing_page = cleanText(data.landing_page, 1000);
+    data.attribution = cleanAttribution(data.attribution);
+    data.lead_score = scoreGrowthPlan(data);
     const payload = {
       type: "contact",
       data,
