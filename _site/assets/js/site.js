@@ -10,9 +10,54 @@ document.addEventListener('mousemove', e => {
 /* ===========================
    ANALYTICS HELPERS
 =========================== */
+const ATTRIBUTION_STORAGE_KEY = 'scratchbox_campaign_attribution_v1';
+const ATTRIBUTION_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'gclid', 'fbclid', 'li_fat_id'];
+
+function safeAttributionValue(value) {
+  return typeof value === 'string' ? value.slice(0, 250) : '';
+}
+
+function readAttribution() {
+  try { return JSON.parse(localStorage.getItem(ATTRIBUTION_STORAGE_KEY)) || {}; } catch (e) { return {}; }
+}
+
+function captureAttribution() {
+  const params = new URLSearchParams(window.location.search);
+  const campaign = ATTRIBUTION_KEYS.reduce((result, key) => {
+    const value = safeAttributionValue(params.get(key));
+    if (value) result[key] = value;
+    return result;
+  }, {});
+  const previous = readAttribution();
+  const hasCampaignData = Object.keys(campaign).length > 0;
+  const touch = {
+    ...campaign,
+    landing_page: window.location.href.slice(0, 1000),
+    referrer: safeAttributionValue(document.referrer),
+    captured_at: new Date().toISOString()
+  };
+  const attribution = {
+    first_touch: previous.first_touch || touch,
+    latest_touch: hasCampaignData ? touch : (previous.latest_touch || touch),
+    latest_page: window.location.href.slice(0, 1000),
+    form_page: ''
+  };
+  try { localStorage.setItem(ATTRIBUTION_STORAGE_KEY, JSON.stringify(attribution)); } catch (e) {}
+  return attribution;
+}
+
+function getAttributionForSubmission() {
+  const attribution = readAttribution();
+  attribution.form_page = window.location.href.slice(0, 1000);
+  return attribution;
+}
+
 function trackEvent(name, params) {
   try {
-    if(typeof gtag !== 'undefined') gtag('event', name, params || {});
+    const eventParams = params || {};
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: name, ...eventParams });
+    if(typeof gtag !== 'undefined') gtag('event', name, eventParams);
     if(typeof clarity !== 'undefined') clarity('event', name);
   } catch (e) {}
 }
@@ -50,6 +95,16 @@ function initTrackingClicks() {
     el.addEventListener('click', () => trackEvent('whatsapp_click', { location: window.location.pathname }));
     el._conversionBound = true;
   });
+}
+
+function initGrowthPlanTracking() {
+  const form = document.querySelector('.growth-plan-form');
+  if (!form || form._growthTrackingBound) return;
+  form.addEventListener('focusin', () => trackEvent('growth_plan_form_start', {
+    form_id: 'growth_plan',
+    page_type: document.body.dataset.page || 'unknown'
+  }), { once: true });
+  form._growthTrackingBound = true;
 }
 
 function initLazyWorkCovers() {
@@ -116,27 +171,120 @@ async function adminLogin() {
 async function loadAdminSubmissions() {
   const login = document.getElementById('adminLogin');
   const wrap = document.getElementById('adminTableWrap');
-  const tbody = document.querySelector('#adminTable tbody');
+  if (!login || !wrap) return;
   try {
-    const res = await fetch('/api/admin/submissions');
+    const res = await fetch('/api/admin/leads');
     if(!res.ok) {
       login.style.display = '';
       wrap.style.display = 'none';
       return;
     }
     const data = await res.json();
-    tbody.innerHTML = data.items.map(i => (
-      '<tr>' +
-        '<td><span class=\"admin-pill\">'+i.type+'</span></td>' +
-        '<td>'+new Date(i.createdAt).toLocaleString()+'</td>' +
-        '<td class=\"admin-row\">'+JSON.stringify(i.data, null, 2)+'</td>' +
-      '</tr>'
-    )).join('');
+    window.crmLeads = data.items || [];
+    renderCrmStats(data.stats || {});
+    filterCrmLeads();
     login.style.display = 'none';
     wrap.style.display = '';
   } catch (e) {
     login.style.display = '';
     wrap.style.display = 'none';
+  }
+}
+
+function escapeHtml(value) {
+  return String(value || '').replace(/[&<>'\"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
+}
+function humaniseCrmStatus(status) {
+  return String(status || 'new').replace(/-/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+function formatCrmDate(value) {
+  if (!value) return '—';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? '—' : date.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+}
+function getLeadAttribution(lead) {
+  const attribution = lead.data?.attribution || {};
+  return attribution.latest_touch || attribution.first_touch || {};
+}
+function getLeadName(data) {
+  return data.name || [data.first_name, data.last_name].filter(Boolean).join(' ') || 'Unknown lead';
+}
+function getLeadObjective(data) {
+  return data.objective || data.interest || '—';
+}
+function renderCrmStats(stats) {
+  const target = document.getElementById('crmStats');
+  if (!target) return;
+  const cards = [['Total leads', stats.total || 0], ['Sales priority', stats.priority || 0], ['Active pipeline', stats.active || 0], ['Won', stats.won || 0]];
+  target.innerHTML = cards.map(([label, value]) => `<article><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></article>`).join('');
+}
+function filterCrmLeads() {
+  const leads = window.crmLeads || [];
+  const search = document.getElementById('crmSearch')?.value.trim().toLowerCase() || '';
+  const status = document.getElementById('crmStatusFilter')?.value || 'all';
+  const priority = document.getElementById('crmPriorityFilter')?.value || 'all';
+  const filtered = leads.filter((lead) => {
+    const data = lead.data || {};
+    const crm = lead.crm || {};
+    const haystack = `${getLeadName(data)} ${data.email || ''} ${data.company || ''}`.toLowerCase();
+    return (!search || haystack.includes(search)) && (status === 'all' || crm.status === status) && (priority === 'all' || data.lead_score?.priority === priority);
+  });
+  const tbody = document.getElementById('crmLeadTable');
+  const empty = document.getElementById('crmEmpty');
+  if (!tbody) return;
+  tbody.innerHTML = filtered.map((lead) => {
+    const data = lead.data || {};
+    const crm = lead.crm || {};
+    const attribution = getLeadAttribution(lead);
+    const source = attribution.utm_source || data.source || (data.first_name ? 'Legacy form' : 'Direct');
+    const campaign = attribution.utm_campaign || '—';
+    const priorityLabel = data.lead_score?.priority ? humaniseCrmStatus(data.lead_score.priority) : 'Unscored';
+    return `<tr><td><strong>${escapeHtml(getLeadName(data))}</strong><span>${escapeHtml(data.company || data.email || '—')}</span></td><td><span class="crm-priority ${escapeHtml(data.lead_score?.priority || 'unscored')}">${escapeHtml(priorityLabel)}</span><small>${escapeHtml(data.industry || '—')} · ${escapeHtml(getLeadObjective(data))}</small></td><td><strong>${escapeHtml(source)}</strong><span>${escapeHtml(campaign)}</span></td><td><span class="crm-status ${escapeHtml(crm.status || 'new')}">${escapeHtml(humaniseCrmStatus(crm.status))}</span></td><td>${escapeHtml(formatCrmDate(crm.followUpAt))}</td><td><button class="crm-open" type="button" onclick="openCrmLead('${lead._id}')">Open</button></td></tr>`;
+  }).join('');
+  if (empty) empty.hidden = Boolean(filtered.length);
+}
+
+function openCrmLead(id) {
+  const lead = (window.crmLeads || []).find((item) => item._id === id);
+  if (!lead) return;
+  const data = lead.data || {};
+  const crm = lead.crm || {};
+  const attribution = getLeadAttribution(lead);
+  document.getElementById('crmLeadName').textContent = getLeadName(data);
+  const statuses = ['new', 'qualified', 'discovery-booked', 'proposal', 'negotiation', 'won', 'lost', 'nurture'];
+  const statusOptions = statuses.map((status) => `<option value="${status}"${crm.status === status ? ' selected' : ''}>${humaniseCrmStatus(status)}</option>`).join('');
+  const notes = (crm.notes || []).slice().reverse().map((note) => `<article class="crm-note"><p>${escapeHtml(note.body)}</p><small>${escapeHtml(formatCrmDate(note.createdAt))}</small></article>`).join('') || '<p class="crm-muted">No internal notes yet.</p>';
+  document.getElementById('crmLeadBody').innerHTML = `
+    <div class="crm-contact"><strong>${escapeHtml(data.company || 'Company not supplied')}</strong><a href="mailto:${escapeHtml(data.email || '')}">${escapeHtml(data.email || 'No email')}</a>${data.phone ? `<a href="tel:${escapeHtml(data.phone)}">${escapeHtml(data.phone)}</a>` : ''}${data.website ? `<a href="${escapeHtml(data.website)}" target="_blank" rel="noopener">${escapeHtml(data.website)}</a>` : ''}</div>
+    <dl class="crm-detail-grid"><div><dt>Industry</dt><dd>${escapeHtml(data.industry || '—')}</dd></div><div><dt>Objective</dt><dd>${escapeHtml(getLeadObjective(data))}</dd></div><div><dt>Revenue</dt><dd>${escapeHtml(data.annual_revenue || '—')}</dd></div><div><dt>Investment</dt><dd>${escapeHtml(data.retainer_budget || data.project_budget || '—')}</dd></div><div><dt>Timeline</dt><dd>${escapeHtml(data.timeline || '—')}</dd></div><div><dt>Lead score</dt><dd>${escapeHtml(data.lead_score?.score ?? '—')} / 30</dd></div></dl>
+    <section class="crm-attribution"><p class="v2-eyebrow">Campaign attribution</p><p><strong>${escapeHtml(attribution.utm_source || data.source || 'Direct')}</strong> · ${escapeHtml(attribution.utm_medium || '—')}</p><p>${escapeHtml(attribution.utm_campaign || 'No campaign recorded')}</p><small>Landing: ${escapeHtml(attribution.landing_page || data.landing_page || '—')}</small></section>
+    <section class="crm-message"><p class="v2-eyebrow">Business context</p><p>${escapeHtml(data.message || 'No additional context supplied.')}</p></section>
+    <form class="crm-update-form" onsubmit="saveCrmLead(event, '${id}')"><p class="v2-eyebrow">Pipeline update</p><label>Status<select name="status">${statusOptions}</select></label><label>Lead owner<input name="owner" value="${escapeHtml(crm.owner || '')}" placeholder="Assign a team member"/></label><label>Next follow-up<input name="followUpAt" type="date" value="${crm.followUpAt ? new Date(crm.followUpAt).toISOString().slice(0, 10) : ''}"/></label><label>Opportunity value (₹)<input name="opportunityValue" type="number" min="0" step="1" value="${crm.opportunityValue ?? ''}" placeholder="Expected value"/></label><label>Lost reason<input name="lostReason" value="${escapeHtml(crm.lostReason || '')}" placeholder="Only if marked lost"/></label><label>Add internal note<textarea name="note" placeholder="What happened? What should happen next?"></textarea></label><button type="submit">Save lead update</button><p class="crm-save-status" aria-live="polite"></p></form>
+    <section class="crm-notes"><p class="v2-eyebrow">Activity notes</p>${notes}</section>`;
+  document.getElementById('crmDrawer').classList.add('open');
+  document.getElementById('crmDrawerBackdrop').classList.add('open');
+  document.getElementById('crmDrawer').setAttribute('aria-hidden', 'false');
+}
+
+function closeCrmLead() {
+  document.getElementById('crmDrawer')?.classList.remove('open');
+  document.getElementById('crmDrawerBackdrop')?.classList.remove('open');
+  document.getElementById('crmDrawer')?.setAttribute('aria-hidden', 'true');
+}
+
+async function saveCrmLead(event, id) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const status = form.querySelector('.crm-save-status');
+  const payload = Object.fromEntries(new FormData(form).entries());
+  try {
+    const response = await fetch(`/api/admin/leads/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    if (!response.ok) throw new Error('Unable to save');
+    status.textContent = 'Saved.';
+    await loadAdminSubmissions();
+    openCrmLead(id);
+  } catch (error) {
+    status.textContent = 'Could not save this update. Please try again.';
   }
 }
 
@@ -184,8 +332,10 @@ function initReveal() {
 }
 initReveal();
 document.addEventListener('DOMContentLoaded', () => {
+  captureAttribution();
   setActiveNav();
   trackPage();
+  initGrowthPlanTracking();
   if(document.body.dataset.page === 'admin') setTimeout(loadAdminSubmissions, 100);
 });
 
@@ -564,21 +714,31 @@ async function handleGrowthPlanSubmit(e) {
     timeline: form.querySelector('[name=\"timeline\"]')?.value || '',
     message: form.querySelector('[name=\"message\"]')?.value.trim() || '',
     source: form.querySelector('[name=\"source\"]')?.value || 'website',
-    landing_page: document.referrer || window.location.href,
+    landing_page: window.location.href,
+    attribution: getAttributionForSubmission(),
   };
+  payload.source = payload.attribution.latest_touch?.utm_source || payload.attribution.first_touch?.utm_source || payload.source;
   try {
-    const response = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Page': window.location.pathname }, body: JSON.stringify(payload) });
-    if (!response.ok) throw new Error('Submission failed');
+    const response = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Page': window.location.pathname, 'X-Lead-Form': 'growth-plan' }, body: JSON.stringify(payload) });
+    if (!response.ok) {
+      const result = await response.json().catch(() => ({}));
+      throw new Error(result.error || 'Submission failed');
+    }
     btn.textContent = 'Growth Plan received';
     btn.style.background = '#1a5a1a';
     if (status) status.textContent = 'Thanks — we have your brief and will be in touch shortly.';
-    trackEvent('growth_plan_submit');
-    if(typeof gtag !== 'undefined') gtag('event', 'generate_lead', { event_category: 'Lead', lead_source: payload.source, industry: payload.industry, objective: payload.objective });
+    trackEvent('generate_lead', {
+      form_id: 'growth_plan',
+      lead_source: payload.source,
+      industry: payload.industry,
+      objective: payload.objective,
+      page_type: document.body.dataset.page || 'contact'
+    });
     if(typeof fbq !== 'undefined') fbq('track', 'Lead');
     form.reset();
   } catch (error) {
     btn.innerHTML = original;
-    if (status) status.textContent = 'We could not send your brief. Please try again or contact us directly.';
+    if (status) status.textContent = error.message || 'We could not send your brief. Please try again or contact us directly.';
   } finally { btn.disabled = false; }
 }
 
@@ -697,6 +857,7 @@ function initDarkCursorZones() {
 document.addEventListener('DOMContentLoaded', refreshCursorTargets);
 document.addEventListener('DOMContentLoaded', initDarkCursorZones);
 document.addEventListener('DOMContentLoaded', initTrackingClicks);
+document.addEventListener('DOMContentLoaded', initGrowthPlanTracking);
 document.addEventListener('DOMContentLoaded', initLazyWorkCovers);
 setTimeout(refreshCursorTargets, 500);
 setTimeout(initDarkCursorZones, 500);

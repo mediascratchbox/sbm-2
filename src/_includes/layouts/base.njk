@@ -60,14 +60,33 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,700;12..96,800&family=DM+Mono:wght@300;400;500&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="/assets/css/site.css?v=4"/>
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-7FXT005235"></script>
+<link rel="stylesheet" href="/assets/css/site.css?v=10"/>
 <script>
   window.dataLayer = window.dataLayer || [];
+  window.ScratchBoxTracking = {
+    ga4MeasurementId: '{{ site.tracking.ga4MeasurementId }}',
+    gtmContainerId: '{{ site.tracking.gtmContainerId }}',
+    metaPixelId: '{{ site.tracking.metaPixelId }}',
+    linkedInPartnerId: '{{ site.tracking.linkedInPartnerId }}'
+  };
+</script>
+{% if site.tracking.gtmContainerId %}
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','{{ site.tracking.gtmContainerId }}');</script>
+{% endif %}
+{% if site.tracking.ga4MeasurementId %}
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ site.tracking.ga4MeasurementId }}"></script>
+<script>
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', 'G-7FXT005235', { send_page_view: false });
+  gtag('config', '{{ site.tracking.ga4MeasurementId }}', { send_page_view: false });
 </script>
+{% endif %}
+{% if site.tracking.metaPixelId %}
+<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','{{ site.tracking.metaPixelId }}');fbq('track','PageView');</script>
+{% endif %}
+{% if site.tracking.linkedInPartnerId %}
+<script>_linkedin_partner_id='{{ site.tracking.linkedInPartnerId }}';window._linkedin_data_partner_ids=window._linkedin_data_partner_ids||[];window._linkedin_data_partner_ids.push(_linkedin_partner_id);(function(l){if(!l){window.lintrk=function(a,b){window.lintrk.q.push([a,b])};window.lintrk.q=[]}var s=document.getElementsByTagName('script')[0],b=document.createElement('script');b.type='text/javascript';b.async=true;b.src='https://snap.licdn.com/li.lms-analytics/insight.min.js';s.parentNode.insertBefore(b,s)})(window.lintrk);</script>
+{% endif %}
 <script>
   (function(c,l,a,r,i,t,y){
     c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
@@ -77,6 +96,9 @@
 </script>
 </head>
 <body data-page="{{ pageId | default('home') }}">
+{% if site.tracking.gtmContainerId %}
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ site.tracking.gtmContainerId }}" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+{% endif %}
 
 <!-- ========================
      CALENDLY POPUP MODAL
@@ -216,6 +238,7 @@
   <a href="/solutions/content-engine/" data-track="nav_click" data-track-label="Content Engine">Content Engine</a>
   <a href="/solutions/scale-partnership/" data-track="nav_click" data-track-label="Scale Partnership">Scale Partnership</a>
   <a href="/#industries" data-track="nav_click" data-track-label="Industries">Industries</a>
+  <a href="/services/" data-track="nav_click" data-track-label="Capabilities">Capabilities</a>
   <a href="/work/" data-track="nav_click" data-track-label="Work">Work</a>
   <a href="/about/" data-track="nav_click" data-track-label="About">About</a>
   <a href="/contact/" data-track="nav_click" data-track-label="Growth plan">Get My Growth Plan</a>
@@ -231,6 +254,7 @@
     <li><a href="/" data-page="home" data-track="nav_click" data-track-label="Home">Home</a></li>
     <li class="nav-solutions"><a href="/#solutions" data-track="nav_click" data-track-label="Solutions">Solutions <span>⌄</span></a><div class="solution-nav-menu"><a href="/solutions/brand-engine/">Brand Engine <small>Build a scalable brand</small></a><a href="/solutions/launch-engine/">Launch Engine <small>Create market momentum</small></a><a href="/solutions/growth-engine/">Growth Engine <small>Build predictable demand</small></a><a href="/solutions/content-engine/">Content Engine <small>Run an always-on content system</small></a><a href="/solutions/scale-partnership/">Scale Partnership <small>Your external marketing department</small></a></div></li>
     <li><a href="/#industries" data-track="nav_click" data-track-label="Industries">Industries</a></li>
+    <li><a href="/services/" data-page="services" data-track="nav_click" data-track-label="Capabilities">Capabilities</a></li>
     <li><a href="/work/" data-page="work" data-track="nav_click" data-track-label="Work">Work</a></li>
     <li><a href="/about/" data-page="about" data-track="nav_click" data-track-label="About">About</a></li>
   </ul>
@@ -410,6 +434,6 @@
   </div>
 </div>
 
-<script src="/assets/js/site.js?v=4" defer></script>
+<script src="/assets/js/site.js?v=7" defer></script>
 </body>
 </html>

@@ -1,27 +1,39 @@
-﻿---
+---
 layout: layouts/base.njk
-title: Admin — ScratchBox.Media
+title: Lead CRM — ScratchBox.Media
 pageId: admin
 ---
-<section class="admin-hero">
-    <div class="label" style="margin-bottom:12px;">Admin</div>
-    <h1 class="admin-h1 reveal">Submissions Dashboard</h1>
+<main class="crm-page">
+  <section class="admin-hero crm-hero">
+    <div><p class="v2-eyebrow">ScratchBox internal</p><h1 class="admin-h1">Lead <em>CRM</em></h1><p>Review campaign enquiries, prioritise follow-up and move qualified opportunities through the pipeline.</p></div>
   </section>
-  <div class="admin-card">
+  <section class="crm-shell">
     <div id="adminLogin" class="admin-login">
-      <input id="adminUser" placeholder="Username"/>
-      <input id="adminPass" type="password" placeholder="Password"/>
-      <button onclick="adminLogin()">Login</button>
-      <div id="adminErr" style="color:#b00020;font-size:12px;"></div>
+      <p>Sign in to access leads and campaign attribution.</p>
+      <input id="adminUser" autocomplete="username" placeholder="Username"/>
+      <input id="adminPass" type="password" autocomplete="current-password" placeholder="Password"/>
+      <button onclick="adminLogin()">Open lead CRM</button>
+      <div id="adminErr" class="crm-error" aria-live="polite"></div>
     </div>
+
     <div id="adminTableWrap" style="display:none;">
-      <table class="admin-table" id="adminTable">
-        <thead><tr><th>Type</th><th>Created</th><th>Data</th></tr></thead>
-        <tbody></tbody>
-      </table>
+      <div class="crm-toolbar"><div><p class="v2-eyebrow">Campaign pipeline</p><h2>Every enquiry, with its source.</h2></div><button class="crm-refresh" type="button" onclick="loadAdminSubmissions()">Refresh leads</button></div>
+      <div class="crm-stats" id="crmStats"></div>
+      <div class="crm-filters">
+        <input id="crmSearch" type="search" placeholder="Search name, company or email" oninput="filterCrmLeads()"/>
+        <select id="crmStatusFilter" onchange="filterCrmLeads()"><option value="all">All statuses</option><option value="new">New</option><option value="qualified">Qualified</option><option value="discovery-booked">Discovery booked</option><option value="proposal">Proposal</option><option value="negotiation">Negotiation</option><option value="won">Won</option><option value="lost">Lost</option><option value="nurture">Nurture</option></select>
+        <select id="crmPriorityFilter" onchange="filterCrmLeads()"><option value="all">All priorities</option><option value="sales-priority">Sales priority</option><option value="sales-nurture">Sales / nurture</option><option value="nurture">Nurture</option></select>
+      </div>
+      <div class="crm-table-wrap"><table class="crm-table"><thead><tr><th>Lead</th><th>Fit</th><th>Campaign source</th><th>Status</th><th>Follow-up</th><th></th></tr></thead><tbody id="crmLeadTable"></tbody></table></div>
+      <p id="crmEmpty" class="crm-empty" hidden>No leads match these filters.</p>
     </div>
-  </div>
+  </section>
+</main>
 
+<aside id="crmDrawer" class="crm-drawer" aria-hidden="true">
+  <div class="crm-drawer-head"><div><p class="v2-eyebrow">Lead detail</p><h2 id="crmLeadName">Lead</h2></div><button type="button" onclick="closeCrmLead()" aria-label="Close lead detail">×</button></div>
+  <div id="crmLeadBody"></div>
+</aside>
+<div id="crmDrawerBackdrop" class="crm-drawer-backdrop" onclick="closeCrmLead()"></div>
 
-
-
+{% include "partials/footer.njk" %}
