@@ -60,7 +60,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,700;12..96,800&family=DM+Mono:wght@300;400;500&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="/assets/css/site.css?v=11"/>
+<link rel="stylesheet" href="/assets/css/site.css?v=13"/>
 <script>
   window.dataLayer = window.dataLayer || [];
   window.ScratchBoxTracking = {
@@ -172,13 +172,14 @@
     </div>
     <div class="project-modal-body">
       <form class="contact-form" onsubmit="handleProjectSubmit(event)">
+        <p class="growth-plan-required-note"><span aria-hidden="true">*</span> Required fields</p>
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">Full Name</label>
+            <label class="form-label">Full Name <span class="required-mark" aria-hidden="true">*</span></label>
             <input class="form-input" type="text" name="name" placeholder="Your name" required/>
           </div>
           <div class="form-group">
-            <label class="form-label">Email</label>
+            <label class="form-label">Email <span class="required-mark" aria-hidden="true">*</span></label>
             <input class="form-input" type="email" name="email" placeholder="grow@scratchbox.media" required/>
           </div>
         </div>
@@ -215,7 +216,7 @@
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Project Details</label>
+          <label class="form-label">Project Details <span class="required-mark" aria-hidden="true">*</span></label>
           <textarea class="form-textarea" name="details" placeholder="Tell us about your goals, scope, and what you need help with." required></textarea>
         </div>
         <button class="form-submit" type="submit">Get My Growth Plan <span class="arr">→</span></button>
