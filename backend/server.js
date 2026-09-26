@@ -15,6 +15,7 @@ const PORT = process.env.PORT || 8080;
 const MONGODB_URI = process.env.MONGODB_URI;
 const ADMIN_USER = process.env.ADMIN_USER || "";
 const ADMIN_PASS = process.env.ADMIN_PASS || "";
+const META_LEADS_SHEET_ID = process.env.META_LEADS_SHEET_ID || "1mKSpeOq_Pzqdkj_HEI5Uevf3U7Nq_yBY-L0fZsLiMe8";
 
 if (!MONGODB_URI) {
   console.error("Missing MONGODB_URI in environment.");
@@ -74,6 +75,11 @@ const submissionSchema = new mongoose.Schema(
       notes: [{ body: String, createdAt: { type: Date, default: Date.now } }],
       updatedAt: { type: Date, default: Date.now },
     },
+    importData: {
+      source: { type: String, default: "" },
+      externalId: { type: String, default: "" },
+      importedAt: { type: Date, default: null },
+    },
     page: { type: String, default: "" },
     userAgent: { type: String, default: "" },
     createdAt: { type: Date, default: Date.now },
@@ -82,7 +88,7 @@ const submissionSchema = new mongoose.Schema(
 );
 
 const Submission = mongoose.model("Submission", submissionSchema);
-const CRM_STATUSES = ["new", "qualified", "discovery-booked", "proposal", "negotiation", "won", "lost", "nurture"];
+const CRM_STATUSES = ["new", "qualified", "discovery-booked", "proposal", "negotiation", "won", "lost", "rejected", "nurture"];
 
 const GROWTH_PLAN_REQUIRED_FIELDS = ["name", "email", "company", "role", "industry", "objective", "annual_revenue", "timeline"];
 
@@ -221,6 +227,13 @@ app.post("/admin/login", (req, res) => {
   return res.status(401).json({ ok: false });
 });
 
+app.post("/admin/logout", (req, res) => {
+  const token = req.cookies[ADMIN_COOKIE];
+  if (token) adminSessions.delete(token);
+  res.clearCookie(ADMIN_COOKIE, { httpOnly: true, sameSite: "lax" });
+  res.json({ ok: true });
+});
+
 app.get("/api/admin/submissions", async (req, res) => {
   if (!isAuthed(req)) return res.status(401).json({ ok: false });
   const items = await Submission.find({}).sort({ createdAt: -1 }).limit(200).lean();
@@ -241,6 +254,70 @@ function normaliseCrm(crm = {}) {
 
 function escapeRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function parseCsv(csv) {
+  const rows = [];
+  let row = [], cell = "", quoted = false;
+  for (let index = 0; index < csv.length; index += 1) {
+    const character = csv[index];
+    if (quoted && character === '"' && csv[index + 1] === '"') { cell += '"'; index += 1; }
+    else if (character === '"') quoted = !quoted;
+    else if (!quoted && character === ",") { row.push(cell); cell = ""; }
+    else if (!quoted && (character === "\n" || character === "\r")) {
+      if (character === "\r" && csv[index + 1] === "\n") index += 1;
+      row.push(cell); if (row.some((value) => value.trim())) rows.push(row); row = []; cell = "";
+    } else cell += character;
+  }
+  row.push(cell); if (row.some((value) => value.trim())) rows.push(row);
+  if (!rows.length) return [];
+  const headers = rows.shift().map((header) => header.trim().toLowerCase());
+  return rows.map((values) => headers.reduce((record, header, index) => ({ ...record, [header]: (values[index] || "").trim() }), {}));
+}
+
+function metaLeadSubmission(row) {
+  const createdAt = Date.parse(row.created_time);
+  const campaign = cleanText(row.campaign_name, 180);
+  const ad = cleanText(row.ad_name, 180);
+  const capturedAt = Number.isNaN(createdAt) ? new Date().toISOString() : new Date(createdAt).toISOString();
+  const touch = { utm_source: "meta", utm_medium: "paid-social", utm_campaign: campaign, utm_content: ad, landing_page: "meta-instant-form", referrer: "", captured_at: capturedAt };
+  return {
+    type: "contact",
+    data: {
+      name: cleanText(row.full_name, 120), email: cleanText(row.email, 254), phone: cleanText(row.phone_number, 50), company: cleanText(row.company_name, 160),
+      source: "meta", industry: "", objective: "", annual_revenue: "", timeline: "", project_budget: "", retainer_budget: "",
+      message: "Imported from Meta instant form.", landing_page: "meta-instant-form",
+      attribution: { first_touch: touch, latest_touch: { ...touch }, latest_page: "meta-instant-form", form_page: "meta-instant-form" },
+      meta_campaign: {
+        platform: cleanText(row.platform, 40).toLowerCase() || "meta", campaign_id: cleanText(row.campaign_id, 120), campaign_name: campaign,
+        adset_id: cleanText(row.adset_id, 120), adset_name: cleanText(row.adset_name, 180), ad_id: cleanText(row.ad_id, 120), ad_name: ad,
+        form_id: cleanText(row.form_id, 120), form_name: cleanText(row.form_name, 180), lead_status: cleanText(row.lead_status, 80),
+      },
+      lead_score: { score: 0, reasons: ["meta-instant-form"], priority: "nurture" },
+    },
+    importData: { source: "meta-google-sheet", externalId: cleanText(row.id, 160), importedAt: new Date() },
+    page: "meta-instant-form", userAgent: "Meta leads Google Sheet import",
+    ...(Number.isNaN(createdAt) ? {} : { createdAt: new Date(createdAt) }),
+  };
+}
+
+let metaLeadSyncPromise = null;
+function syncMetaLeadSheet() {
+  if (metaLeadSyncPromise) return metaLeadSyncPromise;
+  metaLeadSyncPromise = (async () => {
+    const exportUrl = `https://docs.google.com/spreadsheets/d/${encodeURIComponent(META_LEADS_SHEET_ID)}/export?format=csv`;
+    const response = await fetch(exportUrl, { headers: { "User-Agent": "ScratchBox CRM Meta lead importer" } });
+    if (!response.ok) throw new Error("Could not read the Meta leads sheet.");
+    const parsedRows = parseCsv(await response.text()).filter((row) => row.id && (row.email || row.phone_number || row.full_name));
+    const rows = [...parsedRows.reduce((uniqueRows, row) => uniqueRows.set(cleanText(row.id, 160), row), new Map()).values()];
+    const ids = [...new Set(rows.map((row) => cleanText(row.id, 160)))];
+    const existing = ids.length ? await Submission.find({ "importData.source": "meta-google-sheet", "importData.externalId": { $in: ids } }, { "importData.externalId": 1 }).lean() : [];
+    const existingIds = new Set(existing.map((item) => item.importData?.externalId));
+    const newRows = rows.filter((row) => !existingIds.has(cleanText(row.id, 160)));
+    if (newRows.length) await Submission.insertMany(newRows.map(metaLeadSubmission), { ordered: false });
+    return { imported: newRows.length, skipped: rows.length - newRows.length, total: rows.length };
+  })();
+  return metaLeadSyncPromise.finally(() => { metaLeadSyncPromise = null; });
 }
 
 app.get("/api/admin/leads", async (req, res) => {
@@ -268,6 +345,16 @@ app.get("/api/admin/leads", async (req, res) => {
     return result;
   }, { total: 0, new: 0, active: 0, won: 0, priority: 0 });
   res.json({ ok: true, items: leads, stats, statuses: CRM_STATUSES });
+});
+
+app.post("/api/admin/imports/meta-leads", async (req, res) => {
+  if (!isAuthed(req)) return res.status(401).json({ ok: false });
+  try {
+    res.json({ ok: true, ...(await syncMetaLeadSheet()) });
+  } catch (error) {
+    console.error("Meta lead import error:", error.message);
+    res.status(500).json({ ok: false, error: "Meta lead sync failed. Check sheet sharing and try again." });
+  }
 });
 
 app.patch("/api/admin/leads/:id", async (req, res) => {
@@ -344,6 +431,16 @@ mongoose
   .then(() => {
     app.listen(PORT, () => {
       console.log(`SBM backend running on port ${PORT}`);
+      const syncMetaLeadsAutomatically = async () => {
+        try {
+          const result = await syncMetaLeadSheet();
+          console.log(`Meta lead sync complete: ${result.imported} imported, ${result.skipped} existing.`);
+        } catch (error) {
+          console.error("Automatic Meta lead sync failed:", error.message);
+        }
+      };
+      syncMetaLeadsAutomatically();
+      setInterval(syncMetaLeadsAutomatically, 2 * 60 * 60 * 1000);
     });
   })
   .catch((err) => {

@@ -8,22 +8,25 @@ pageId: admin
     <div><p class="v2-eyebrow">ScratchBox internal</p><h1 class="admin-h1">Lead <em>CRM</em></h1><p>Review campaign enquiries, prioritise follow-up and move qualified opportunities through the pipeline.</p></div>
   </section>
   <section class="crm-shell">
-    <div id="adminLogin" class="admin-login">
+    <p id="adminChecking" class="crm-checking" aria-live="polite">Checking secure CRM access…</p>
+    <div id="adminLogin" class="admin-login" style="display:none;">
       <p>Sign in to access leads and campaign attribution.</p>
       <input id="adminUser" autocomplete="username" placeholder="Username"/>
       <input id="adminPass" type="password" autocomplete="current-password" placeholder="Password"/>
-      <button onclick="adminLogin()">Open lead CRM</button>
+      <button id="adminLoginButton" type="button" onclick="adminLogin()">Open lead CRM</button>
       <div id="adminErr" class="crm-error" aria-live="polite"></div>
     </div>
 
     <div id="adminTableWrap" style="display:none;">
-      <div class="crm-toolbar"><div><p class="v2-eyebrow">Campaign pipeline</p><h2>Every enquiry, with its source.</h2></div><button class="crm-refresh" type="button" onclick="loadAdminSubmissions()">Refresh leads</button></div>
+      <div class="crm-toolbar"><div><p class="v2-eyebrow">Campaign pipeline</p><h2>Every enquiry, with its source.</h2></div><div class="crm-toolbar-actions"><button class="crm-refresh crm-sync" type="button" onclick="syncMetaLeads()">Sync Meta leads</button><button class="crm-refresh crm-refresh-leads" type="button" onclick="refreshCrmLeads()">Refresh &amp; sync leads</button><button class="crm-refresh crm-logout" type="button" onclick="adminLogout()">Log out</button></div></div>
+        <p id="crmImportStatus" class="crm-import-status" aria-live="polite"></p>
+        <div class="crm-filters">
+          <input id="crmSearch" type="search" placeholder="Search name, company or email" oninput="filterCrmLeads()"/>
+          <details class="crm-status-filter"><summary id="crmStatusFilterLabel">All statuses</summary><div class="crm-status-options"><label><input type="checkbox" name="crmStatusFilter" value="new" onchange="filterCrmLeads()"/> New</label><label><input type="checkbox" name="crmStatusFilter" value="qualified" onchange="filterCrmLeads()"/> Qualified</label><label><input type="checkbox" name="crmStatusFilter" value="discovery-booked" onchange="filterCrmLeads()"/> Discovery booked</label><label><input type="checkbox" name="crmStatusFilter" value="proposal" onchange="filterCrmLeads()"/> Proposal</label><label><input type="checkbox" name="crmStatusFilter" value="negotiation" onchange="filterCrmLeads()"/> Negotiation</label><label><input type="checkbox" name="crmStatusFilter" value="won" onchange="filterCrmLeads()"/> Won</label><label><input type="checkbox" name="crmStatusFilter" value="lost" onchange="filterCrmLeads()"/> Lost</label><label><input type="checkbox" name="crmStatusFilter" value="rejected" onchange="filterCrmLeads()"/> Rejected</label><label><input type="checkbox" name="crmStatusFilter" value="nurture" onchange="filterCrmLeads()"/> Nurture</label></div></details>
+          <select id="crmPriorityFilter" onchange="filterCrmLeads()"><option value="all">All priorities</option><option value="sales-priority">Sales priority</option><option value="sales-nurture">Sales / nurture</option><option value="nurture">Nurture</option></select>
+          <select id="crmSourceFilter" onchange="filterCrmLeads()"><option value="all">All campaign sources</option></select>
+        </div>
       <div class="crm-stats" id="crmStats"></div>
-      <div class="crm-filters">
-        <input id="crmSearch" type="search" placeholder="Search name, company or email" oninput="filterCrmLeads()"/>
-        <select id="crmStatusFilter" onchange="filterCrmLeads()"><option value="all">All statuses</option><option value="new">New</option><option value="qualified">Qualified</option><option value="discovery-booked">Discovery booked</option><option value="proposal">Proposal</option><option value="negotiation">Negotiation</option><option value="won">Won</option><option value="lost">Lost</option><option value="nurture">Nurture</option></select>
-        <select id="crmPriorityFilter" onchange="filterCrmLeads()"><option value="all">All priorities</option><option value="sales-priority">Sales priority</option><option value="sales-nurture">Sales / nurture</option><option value="nurture">Nurture</option></select>
-      </div>
       <div class="crm-table-wrap"><table class="crm-table"><thead><tr><th>Lead</th><th>Fit</th><th>Campaign source</th><th>Status</th><th>Follow-up</th><th></th></tr></thead><tbody id="crmLeadTable"></tbody></table></div>
       <p id="crmEmpty" class="crm-empty" hidden>No leads match these filters.</p>
     </div>

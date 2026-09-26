@@ -143,6 +143,8 @@ async function adminLogin() {
   const user = document.getElementById('adminUser').value;
   const pass = document.getElementById('adminPass').value;
   const err = document.getElementById('adminErr');
+  const button = document.getElementById('adminLoginButton');
+  setCrmButtonLoading(button, 'Signing in…');
   try {
     const res = await fetch('/admin/login', {
       method: 'POST',
@@ -151,7 +153,7 @@ async function adminLogin() {
     });
     if(res.ok) {
       err.textContent = '';
-      await loadAdminSubmissions();
+      await refreshCrmLeads();
       return;
     }
     if(res.status === 404) {
@@ -165,29 +167,93 @@ async function adminLogin() {
     err.textContent = 'Invalid credentials';
   } catch (e) {
     err.textContent = 'Login failed. Check if backend server is running.';
+  } finally {
+    clearCrmButtonLoading(button);
   }
 }
 
 async function loadAdminSubmissions() {
   const login = document.getElementById('adminLogin');
   const wrap = document.getElementById('adminTableWrap');
+  const checking = document.getElementById('adminChecking');
   if (!login || !wrap) return;
   try {
     const res = await fetch('/api/admin/leads');
     if(!res.ok) {
       login.style.display = '';
       wrap.style.display = 'none';
-      return;
+      if (checking) checking.style.display = 'none';
+      return false;
     }
     const data = await res.json();
     window.crmLeads = data.items || [];
     renderCrmStats(data.stats || {});
+    populateCrmSourceFilter();
     filterCrmLeads();
     login.style.display = 'none';
     wrap.style.display = '';
+    if (checking) checking.style.display = 'none';
+    return true;
   } catch (e) {
     login.style.display = '';
     wrap.style.display = 'none';
+    if (checking) checking.style.display = 'none';
+    return false;
+  }
+}
+
+async function syncMetaLeads(triggerButton = document.querySelector('.crm-sync')) {
+  const status = document.getElementById('crmImportStatus');
+  const button = triggerButton;
+  setCrmButtonLoading(button, 'Syncing leads…');
+  if (status) status.textContent = '';
+  try {
+    const response = await fetch('/api/admin/imports/meta-leads', { method: 'POST' });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'Meta lead sync failed.');
+    if (status) status.textContent = `${result.imported} Meta lead${result.imported === 1 ? '' : 's'} imported. ${result.skipped} already in CRM.`;
+    await loadAdminSubmissions();
+  } catch (error) {
+    if (status) status.textContent = error.message || 'Meta lead sync failed.';
+    await loadAdminSubmissions();
+  } finally {
+    clearCrmButtonLoading(button);
+  }
+}
+
+async function refreshCrmLeads() {
+  await syncMetaLeads(document.querySelector('.crm-refresh-leads'));
+}
+
+function setCrmButtonLoading(button, label) {
+  if (!button) return;
+  if (!button.dataset.defaultLabel) button.dataset.defaultLabel = button.textContent.trim();
+  button.disabled = true;
+  button.innerHTML = `<span class="crm-loading-spinner" aria-hidden="true"></span>${escapeHtml(label)}`;
+}
+function clearCrmButtonLoading(button) {
+  if (!button) return;
+  button.disabled = false;
+  button.textContent = button.dataset.defaultLabel || button.textContent;
+}
+
+async function initialiseCrm() {
+  // Verify the current session before triggering the sheet sync, so reloads do not flash the login form.
+  if (await loadAdminSubmissions()) await refreshCrmLeads();
+}
+
+async function adminLogout() {
+  try {
+    await fetch('/admin/logout', { method: 'POST' });
+  } finally {
+    window.crmLeads = [];
+    closeCrmLead();
+    document.getElementById('adminTableWrap').style.display = 'none';
+    document.getElementById('adminLogin').style.display = '';
+    document.getElementById('adminChecking').style.display = 'none';
+    clearCrmButtonLoading(document.getElementById('adminLoginButton'));
+    document.getElementById('adminPass').value = '';
+    document.getElementById('adminUser').focus();
   }
 }
 
@@ -212,6 +278,27 @@ function getLeadName(data) {
 function getLeadObjective(data) {
   return data.objective || data.interest || '—';
 }
+function getLeadSource(lead) {
+  const data = lead.data || {};
+  const attribution = getLeadAttribution(lead);
+  return attribution.utm_source || data.source || (data.first_name ? 'Legacy form' : 'Direct');
+}
+function getSelectedCrmStatuses() {
+  return [...document.querySelectorAll('input[name="crmStatusFilter"]:checked')].map((input) => input.value);
+}
+function updateCrmStatusFilterLabel(statuses) {
+  const label = document.getElementById('crmStatusFilterLabel');
+  if (!label) return;
+  label.textContent = !statuses.length ? 'All statuses' : statuses.length === 1 ? humaniseCrmStatus(statuses[0]) : `${statuses.length} statuses`;
+}
+function populateCrmSourceFilter() {
+  const select = document.getElementById('crmSourceFilter');
+  if (!select) return;
+  const selected = select.value || 'all';
+  const sources = [...new Set((window.crmLeads || []).map(getLeadSource).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  select.innerHTML = `<option value="all">All campaign sources</option>${sources.map((source) => `<option value="${escapeHtml(source)}">${escapeHtml(source)}</option>`).join('')}`;
+  select.value = sources.includes(selected) ? selected : 'all';
+}
 function renderCrmStats(stats) {
   const target = document.getElementById('crmStats');
   if (!target) return;
@@ -221,13 +308,15 @@ function renderCrmStats(stats) {
 function filterCrmLeads() {
   const leads = window.crmLeads || [];
   const search = document.getElementById('crmSearch')?.value.trim().toLowerCase() || '';
-  const status = document.getElementById('crmStatusFilter')?.value || 'all';
+  const statuses = getSelectedCrmStatuses();
+  updateCrmStatusFilterLabel(statuses);
   const priority = document.getElementById('crmPriorityFilter')?.value || 'all';
+  const source = document.getElementById('crmSourceFilter')?.value || 'all';
   const filtered = leads.filter((lead) => {
     const data = lead.data || {};
     const crm = lead.crm || {};
     const haystack = `${getLeadName(data)} ${data.email || ''} ${data.company || ''}`.toLowerCase();
-    return (!search || haystack.includes(search)) && (status === 'all' || crm.status === status) && (priority === 'all' || data.lead_score?.priority === priority);
+    return (!search || haystack.includes(search)) && (!statuses.length || statuses.includes(crm.status || 'new')) && (priority === 'all' || data.lead_score?.priority === priority) && (source === 'all' || getLeadSource(lead) === source);
   });
   const tbody = document.getElementById('crmLeadTable');
   const empty = document.getElementById('crmEmpty');
@@ -236,7 +325,7 @@ function filterCrmLeads() {
     const data = lead.data || {};
     const crm = lead.crm || {};
     const attribution = getLeadAttribution(lead);
-    const source = attribution.utm_source || data.source || (data.first_name ? 'Legacy form' : 'Direct');
+    const source = getLeadSource(lead);
     const campaign = attribution.utm_campaign || '—';
     const priorityLabel = data.lead_score?.priority ? humaniseCrmStatus(data.lead_score.priority) : 'Unscored';
     return `<tr><td><strong>${escapeHtml(getLeadName(data))}</strong><span>${escapeHtml(data.company || data.email || '—')}</span></td><td><span class="crm-priority ${escapeHtml(data.lead_score?.priority || 'unscored')}">${escapeHtml(priorityLabel)}</span><small>${escapeHtml(data.industry || '—')} · ${escapeHtml(getLeadObjective(data))}</small></td><td><strong>${escapeHtml(source)}</strong><span>${escapeHtml(campaign)}</span></td><td><span class="crm-status ${escapeHtml(crm.status || 'new')}">${escapeHtml(humaniseCrmStatus(crm.status))}</span></td><td>${escapeHtml(formatCrmDate(crm.followUpAt))}</td><td><button class="crm-open" type="button" onclick="openCrmLead('${lead._id}')">Open</button></td></tr>`;
@@ -251,7 +340,7 @@ function openCrmLead(id) {
   const crm = lead.crm || {};
   const attribution = getLeadAttribution(lead);
   document.getElementById('crmLeadName').textContent = getLeadName(data);
-  const statuses = ['new', 'qualified', 'discovery-booked', 'proposal', 'negotiation', 'won', 'lost', 'nurture'];
+  const statuses = ['new', 'qualified', 'discovery-booked', 'proposal', 'negotiation', 'won', 'lost', 'rejected', 'nurture'];
   const statusOptions = statuses.map((status) => `<option value="${status}"${crm.status === status ? ' selected' : ''}>${humaniseCrmStatus(status)}</option>`).join('');
   const notes = (crm.notes || []).slice().reverse().map((note) => `<article class="crm-note"><p>${escapeHtml(note.body)}</p><small>${escapeHtml(formatCrmDate(note.createdAt))}</small></article>`).join('') || '<p class="crm-muted">No internal notes yet.</p>';
   document.getElementById('crmLeadBody').innerHTML = `
@@ -336,7 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setActiveNav();
   trackPage();
   initGrowthPlanTracking();
-  if(document.body.dataset.page === 'admin') setTimeout(loadAdminSubmissions, 100);
+  if(document.body.dataset.page === 'admin') setTimeout(initialiseCrm, 100);
 });
 
 /* ===========================

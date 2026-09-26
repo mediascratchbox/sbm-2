@@ -55,3 +55,7 @@ Recommended values:
 3. Confirm the saved submission has the expected first/latest touch values.
 4. Confirm one `generate_lead` event in GA4 DebugView, Google Tag Assistant, Meta Test Events and LinkedIn Campaign Manager.
 5. Remove or label the test submission before reporting on live leads.
+
+## Meta instant-form lead sync
+
+The protected CRM imports Meta leads from the configured public Google Sheet at startup and every two hours. CRM users can also use **Refresh leads** to run an immediate sync before the table refreshes. Meta's `id` column is used to avoid duplicate imports.
