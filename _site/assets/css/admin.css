@@ -1,0 +1,17 @@
+/* The CRM is an internal workspace, so it intentionally omits public-site navigation and CTAs. */
+body[data-page="admin"] #nav,
+body[data-page="admin"] #mobileMenu,
+body[data-page="admin"] .sticky-cta-bar,
+body[data-page="admin"] #progressBar{display:none!important;}
+
+body[data-page="admin"] .admin-hero{padding-top:60px;}
+.crm-checking{margin:0;padding:24px;color:#666;font-size:14px;}
+.crm-loading-spinner{display:inline-block;width:12px;height:12px;margin-right:7px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;vertical-align:-2px;animation:crm-spin .65s linear infinite;}
+.crm-status-filter{position:relative;}.crm-status-filter summary{height:43px;box-sizing:border-box;border:1px solid var(--border);background:#fff;padding:12px;font:400 14px 'Manrope',sans-serif;color:var(--ink);cursor:pointer;list-style:none;}.crm-status-filter summary::-webkit-details-marker{display:none;}.crm-status-filter summary:after{content:'⌄';float:right;}.crm-status-filter[open] summary:after{content:'⌃';}.crm-status-options{position:absolute;z-index:35;left:0;right:0;max-height:280px;overflow:auto;border:1px solid var(--border);border-top:0;background:#fff;box-shadow:0 14px 24px rgba(8,15,31,.12);}.crm-status-options label{display:flex;align-items:center;gap:8px;padding:9px 12px;font:400 13px 'Manrope',sans-serif;cursor:pointer;}.crm-status-options label:hover{background:#f5f4ef;}.crm-status-options input{accent-color:var(--ink);}
+.crm-status.rejected{background:#f1e5e9;color:#7e3451;}
+.crm-status-options input{width:auto!important;flex:none;padding:0!important;border:0!important;}
+@keyframes crm-spin{to{transform:rotate(360deg)}}
+
+@media(max-width:800px){
+  body[data-page="admin"] .admin-hero{padding-top:36px;}
+}
