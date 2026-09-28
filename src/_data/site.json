@@ -7,6 +7,13 @@
     "ga4MeasurementId": "G-7FXT005235",
     "gtmContainerId": "",
     "metaPixelId": "1081999360842684",
-    "linkedInPartnerId": ""
+    "linkedInPartnerId": "",
+    "clarityProjectId": "qdvrnoux8a"
+  },
+  "legal": {
+    "controllerName": "ScratchBox.Media",
+    "contactEmail": "grow@scratchbox.media",
+    "location": "Bangalore and Udaipur, India",
+    "effectiveDate": "28 September 2026"
   }
 }

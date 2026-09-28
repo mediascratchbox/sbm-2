@@ -61,6 +61,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,700;12..96,800&family=DM+Mono:wght@300;400;500&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/assets/css/site.css?v=14"/>
+<link rel="stylesheet" href="/assets/css/consent.css?v=1"/>
+
 
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -68,34 +70,17 @@
     ga4MeasurementId: 'G-7FXT005235',
     gtmContainerId: '',
     metaPixelId: '1081999360842684',
-    linkedInPartnerId: ''
+    linkedInPartnerId: '',
+    clarityProjectId: 'qdvrnoux8a'
   };
-</script>
-
-
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-7FXT005235"></script>
-<script>
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-7FXT005235', { send_page_view: false });
-</script>
-
-
-<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','1081999360842684');fbq('track','PageView');</script>
-
-
-<script>
-  (function(c,l,a,r,i,t,y){
-    c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-    t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-    y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-  })(window, document, "clarity", "script", "qdvrnoux8a");
 </script>
 </head>
 <body data-page="solution-launch-engine">
 
-
-<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1081999360842684&amp;ev=PageView&amp;noscript=1" alt=""/></noscript>
+<section id="privacyConsent" class="privacy-consent" role="dialog" aria-modal="true" aria-labelledby="privacyConsentTitle" hidden>
+  <div><p class="v2-eyebrow">Your privacy</p><h2 id="privacyConsentTitle">Choose how we use cookies</h2><p>We use necessary storage to run the website. With your permission, analytics and advertising tools help us measure campaigns and improve the site.</p><p><a href="/privacy-policy/">Privacy Policy</a> · <button type="button" class="privacy-link-button" onclick="openPrivacyChoices()">Manage choices</button></p></div>
+  <div class="privacy-consent-actions"><button type="button" class="privacy-reject" onclick="setPrivacyConsent(false)">Reject non-essential</button><button type="button" class="privacy-accept" onclick="setPrivacyConsent(true)">Accept analytics &amp; ads</button></div>
+</section>
 
 
 <!-- ========================
@@ -332,8 +317,9 @@
   <div class="footer-bottom">
     <span>© ScratchBox.media — All Rights Reserved 2026</span>
     <div class="footer-bottom-links">
-      <a href="#">Privacy Policy</a>
-      <a href="#">Terms & Conditions</a>
+      <a href="/privacy-policy/">Privacy Policy</a>
+      <a href="/terms-and-conditions/">Terms &amp; Conditions</a>
+      <button class="footer-privacy-choices" type="button" onclick="openPrivacyChoices()">Privacy Choices</button>
       <a href="/admin/">Admin</a>
     </div>
   </div>
@@ -506,6 +492,6 @@
   </div>
 </div>
 
-<script src="/assets/js/site.js?v=15" defer></script>
+<script src="/assets/js/site.js?v=18" defer></script>
 </body>
 </html>
