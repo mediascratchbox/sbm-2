@@ -12,6 +12,79 @@ document.addEventListener('mousemove', e => {
 =========================== */
 const ATTRIBUTION_STORAGE_KEY = 'scratchbox_campaign_attribution_v1';
 const ATTRIBUTION_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'gclid', 'fbclid', 'li_fat_id'];
+const PRIVACY_CONSENT_STORAGE_KEY = 'scratchbox_privacy_consent_v1';
+
+function readPrivacyConsent() {
+  try { return JSON.parse(localStorage.getItem(PRIVACY_CONSENT_STORAGE_KEY)) || null; } catch (e) { return null; }
+}
+function hasMarketingConsent() { return Boolean(readPrivacyConsent()?.marketing); }
+function loadExternalScript(id, src) {
+  if (document.getElementById(id)) return;
+  const script = document.createElement('script');
+  script.id = id; script.async = true; script.src = src;
+  document.head.appendChild(script);
+}
+function enableConsentBasedTracking() {
+  const consent = readPrivacyConsent();
+  const config = window.ScratchBoxTracking || {};
+  if (!consent) return;
+  if (consent.analytics) {
+    if (config.ga4MeasurementId && !window.__scratchboxGaLoaded) {
+      window.__scratchboxGaLoaded = true;
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = window.gtag || function(){ window.dataLayer.push(arguments); };
+      window.gtag('js', new Date());
+      window.gtag('config', config.ga4MeasurementId, { send_page_view: false });
+      loadExternalScript('scratchbox-ga4', `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(config.ga4MeasurementId)}`);
+    }
+    if (config.clarityProjectId && !window.__scratchboxClarityLoaded) {
+      window.__scratchboxClarityLoaded = true;
+      window.clarity = window.clarity || function(){ (window.clarity.q = window.clarity.q || []).push(arguments); };
+      loadExternalScript('scratchbox-clarity', `https://www.clarity.ms/tag/${encodeURIComponent(config.clarityProjectId)}`);
+    }
+  }
+  if (consent.marketing) {
+    if (config.metaPixelId && !window.__scratchboxMetaLoaded) {
+      window.__scratchboxMetaLoaded = true;
+      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+      window.fbq('init', config.metaPixelId); window.fbq('track', 'PageView');
+    }
+    if (config.linkedInPartnerId && !window.__scratchboxLinkedInLoaded) {
+      window.__scratchboxLinkedInLoaded = true;
+      window._linkedin_partner_id = config.linkedInPartnerId;
+      window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || [];
+      window._linkedin_data_partner_ids.push(config.linkedInPartnerId);
+      window.lintrk = window.lintrk || function(a,b){ window.lintrk.q.push([a,b]); }; window.lintrk.q = window.lintrk.q || [];
+      loadExternalScript('scratchbox-linkedin', 'https://snap.licdn.com/li.lms-analytics/insight.min.js');
+    }
+  }
+  trackPage();
+}
+function setPrivacyConsent(allowNonEssential) {
+  const consent = { necessary: true, analytics: Boolean(allowNonEssential), marketing: Boolean(allowNonEssential), updatedAt: new Date().toISOString() };
+  try {
+    localStorage.setItem(PRIVACY_CONSENT_STORAGE_KEY, JSON.stringify(consent));
+    if (!allowNonEssential) localStorage.removeItem(ATTRIBUTION_STORAGE_KEY);
+  } catch (e) {}
+  document.getElementById('privacyConsent')?.setAttribute('hidden', '');
+  enableConsentBasedTracking();
+  if (allowNonEssential) captureAttribution();
+}
+function openPrivacyChoices() {
+  const banner = document.getElementById('privacyConsent');
+  if (banner) { banner.removeAttribute('hidden'); banner.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+}
+function initPrivacyConsent() {
+  const banner = document.getElementById('privacyConsent');
+  if (!banner) return;
+  let consent = readPrivacyConsent();
+  if (navigator.globalPrivacyControl && (!consent || consent.marketing)) {
+    setPrivacyConsent(false);
+    consent = readPrivacyConsent();
+  }
+  if (consent) enableConsentBasedTracking();
+  else banner.removeAttribute('hidden');
+}
 
 function safeAttributionValue(value) {
   return typeof value === 'string' ? value.slice(0, 250) : '';
@@ -22,6 +95,7 @@ function readAttribution() {
 }
 
 function captureAttribution() {
+  if (!hasMarketingConsent()) return { first_touch: {}, latest_touch: {}, latest_page: window.location.href.slice(0, 1000), form_page: '' };
   const params = new URLSearchParams(window.location.search);
   const campaign = ATTRIBUTION_KEYS.reduce((result, key) => {
     const value = safeAttributionValue(params.get(key));
@@ -421,9 +495,9 @@ function initReveal() {
 }
 initReveal();
 document.addEventListener('DOMContentLoaded', () => {
+  initPrivacyConsent();
   captureAttribution();
   setActiveNav();
-  trackPage();
   initGrowthPlanTracking();
   if(document.body.dataset.page === 'admin') setTimeout(initialiseCrm, 100);
 });
