@@ -347,7 +347,7 @@ function getLeadAttribution(lead) {
   return attribution.latest_touch || attribution.first_touch || {};
 }
 function getLeadName(data) {
-  return data.name || [data.first_name, data.last_name].filter(Boolean).join(' ') || 'Unknown lead';
+  return data.name || [data.first_name, data.last_name].filter(Boolean).join(' ') || data.email || 'Unknown lead';
 }
 function getLeadObjective(data) {
   return data.objective || data.interest || '—';
@@ -578,6 +578,117 @@ function closeProjectForm() {
 }
 document.getElementById('projectModal').addEventListener('click', function(e) {
   if(e.target === this) closeProjectForm();
+});
+
+/* ===========================
+   QUICK CONTACT POPUP
+=========================== */
+const QUICK_CONTACT_DELAY = 10000;
+const QUICK_CONTACT_COMPLETED_SESSION_KEY = 'scratchbox_quick_contact_completed_v1';
+let quickContactTimer = null;
+let quickContactSubmitted = false;
+
+function hasCompletedContactSession() {
+  try { return sessionStorage.getItem(QUICK_CONTACT_COMPLETED_SESSION_KEY) === 'true'; } catch (error) { return false; }
+}
+
+function markContactSessionComplete() {
+  quickContactSubmitted = true;
+  window.clearTimeout(quickContactTimer);
+  try { sessionStorage.setItem(QUICK_CONTACT_COMPLETED_SESSION_KEY, 'true'); } catch (error) {}
+}
+
+function canOpenQuickContactPopup() {
+  const modal = document.getElementById('quickContactModal');
+  const consent = document.getElementById('privacyConsent');
+  if (!modal || document.body.dataset.page === 'admin' || modal.classList.contains('open')) return false;
+  if (consent && !consent.hasAttribute('hidden')) return false;
+  return !document.querySelector('.modal-overlay.open, .video-modal-overlay.open, .project-modal-overlay.open, .work-modal-overlay.open, .planner-modal-overlay.open');
+}
+
+function scheduleQuickContactPopup(delay = QUICK_CONTACT_DELAY) {
+  window.clearTimeout(quickContactTimer);
+  if (quickContactSubmitted || document.body.dataset.page === 'admin') return;
+  quickContactTimer = window.setTimeout(() => {
+    if (canOpenQuickContactPopup()) openQuickContactPopup();
+    else scheduleQuickContactPopup(1000);
+  }, delay);
+}
+
+function openQuickContactPopup() {
+  const modal = document.getElementById('quickContactModal');
+  if (!modal || !canOpenQuickContactPopup()) return;
+  window.clearTimeout(quickContactTimer);
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  trackEvent('quick_contact_popup_open', { page_type: document.body.dataset.page || 'home' });
+  window.setTimeout(() => document.getElementById('quick-contact-email')?.focus(), 250);
+}
+
+function closeQuickContactPopup(reschedule = true) {
+  const modal = document.getElementById('quickContactModal');
+  if (!modal) return;
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+  trackEvent('quick_contact_popup_close', { page_type: document.body.dataset.page || 'home' });
+  if (reschedule && document.body.dataset.page === 'contact' && !quickContactSubmitted) scheduleQuickContactPopup();
+}
+
+async function handleQuickContactSubmit(event) {
+  event.preventDefault();
+  const form = event.target;
+  const button = form.querySelector('.form-submit');
+  const status = form.querySelector('.quick-contact-status');
+  const original = button.innerHTML;
+  if (!form.checkValidity()) { form.reportValidity(); return; }
+  button.disabled = true;
+  button.textContent = 'Sending…';
+  if (status) status.textContent = '';
+  const payload = {
+    name: '',
+    email: form.querySelector('[name="email"]')?.value.trim() || '',
+    phone: form.querySelector('[name="phone"]')?.value.trim() || '',
+    message: form.querySelector('[name="message"]')?.value.trim() || '',
+    source: 'quick-contact-popup',
+    landing_page: window.location.href,
+    attribution: getAttributionForSubmission()
+  };
+  payload.source = payload.attribution.latest_touch?.utm_source || payload.attribution.first_touch?.utm_source || payload.source;
+  try {
+    const response = await fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Page': window.location.pathname, 'X-Lead-Form': 'quick-contact' },
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+      const result = await response.json().catch(() => ({}));
+      throw new Error(result.error || 'Submission failed');
+    }
+    markContactSessionComplete();
+    button.textContent = 'Request received';
+    if (status) status.textContent = 'Thanks — our team will be in touch shortly.';
+    trackEvent('generate_lead', { form_id: 'quick_contact_popup', lead_source: payload.source, page_type: document.body.dataset.page || 'home' });
+    if (typeof fbq !== 'undefined') fbq('track', 'Lead');
+    form.reset();
+    window.setTimeout(() => closeQuickContactPopup(false), 1800);
+  } catch (error) {
+    button.innerHTML = original;
+    if (status) status.textContent = error.message || 'We could not send your request. Please try again.';
+  } finally {
+    button.disabled = false;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.getElementById('quickContactModal');
+  if (!modal || document.body.dataset.page === 'admin') return;
+  quickContactSubmitted = hasCompletedContactSession();
+  modal.addEventListener('click', (event) => {
+    if (event.target === modal) closeQuickContactPopup();
+  });
+  scheduleQuickContactPopup(document.body.dataset.page === 'contact' ? 0 : QUICK_CONTACT_DELAY);
 });
 
 /* ===========================
@@ -898,6 +1009,7 @@ async function handleGrowthPlanSubmit(e) {
       page_type: document.body.dataset.page || 'contact'
     });
     if(typeof fbq !== 'undefined') fbq('track', 'Lead');
+    markContactSessionComplete();
     form.reset();
   } catch (error) {
     btn.innerHTML = original;
@@ -993,6 +1105,7 @@ document.addEventListener('keydown', e => {
     closeVideoModal();
     closePlanner();
     closeProjectForm();
+    closeQuickContactPopup(false);
   }
 });
 

@@ -208,6 +208,28 @@
   </div>
 </div>
 
+<!-- Quick Contact Popup -->
+<div class="quick-contact-overlay" id="quickContactModal" role="dialog" aria-modal="true" aria-labelledby="quickContactTitle" aria-hidden="true">
+  <section class="quick-contact-box">
+    <button class="quick-contact-close" type="button" aria-label="Close contact form" onclick="closeQuickContactPopup()">✕</button>
+    <p class="v2-eyebrow">A focused first step</p>
+    <h2 id="quickContactTitle">Need help building your <em>growth system?</em></h2>
+    <p>Share the essentials and we’ll get in touch to understand the right next step.</p>
+    <form class="quick-contact-form" onsubmit="handleQuickContactSubmit(event)" novalidate>
+      <p class="growth-plan-required-note"><span aria-hidden="true">*</span> Required fields</p>
+      <label class="form-label" for="quick-contact-email">Work email <span class="required-mark" aria-hidden="true">*</span></label>
+      <input class="form-input" id="quick-contact-email" type="email" name="email" autocomplete="email" placeholder="you@company.com" required/>
+      <label class="form-label" for="quick-contact-phone">Mobile / WhatsApp <span class="required-mark" aria-hidden="true">*</span></label>
+      <input class="form-input" id="quick-contact-phone" type="tel" name="phone" autocomplete="tel" placeholder="+91 00000 00000" required/>
+      <label class="form-label" for="quick-contact-requirement">What do you need help with? <span class="required-mark" aria-hidden="true">*</span></label>
+      <textarea class="form-textarea" id="quick-contact-requirement" name="message" placeholder="Tell us briefly about your requirement" required></textarea>
+      <button class="form-submit" type="submit">Request a callback <span class="arr">↗</span></button>
+      <p class="quick-contact-full-link">Have more context to share? <a href="/contact/">Complete the full Growth Plan</a>.</p>
+      <p class="quick-contact-status" aria-live="polite"></p>
+    </form>
+  </section>
+</div>
+
 <!-- Cursor -->
 <div id="cur"></div>
 
@@ -623,6 +645,6 @@
   </div>
 </div>
 
-<script src="/assets/js/site.js?v=18" defer></script>
+<script src="/assets/js/site.js?v=20" defer></script>
 </body>
 </html>
