@@ -382,8 +382,10 @@ app.post("/api/contact", async (req, res) => {
   try {
     const data = req.body || {};
     const isGrowthPlan = req.get("x-lead-form") === "growth-plan";
-    if (!isGrowthPlan) return res.status(400).json({ ok: false, error: "Outdated form. Please refresh the page and submit the Growth Plan form again." });
-    const missing = GROWTH_PLAN_REQUIRED_FIELDS.filter((field) => !cleanText(data[field], 200));
+    const isQuickContact = req.get("x-lead-form") === "quick-contact";
+    if (!isGrowthPlan && !isQuickContact) return res.status(400).json({ ok: false, error: "Outdated form. Please refresh the page and submit the form again." });
+    const requiredFields = isGrowthPlan ? GROWTH_PLAN_REQUIRED_FIELDS : ["email", "phone", "message"];
+    const missing = requiredFields.filter((field) => !cleanText(data[field], 200));
     if (missing.length) return res.status(400).json({ ok: false, error: "Missing required fields" });
     if (!/^\S+@\S+\.\S+$/.test(cleanText(data.email, 254))) return res.status(400).json({ ok: false, error: "Invalid email" });
     data.name = cleanText(data.name, 120);
@@ -393,6 +395,7 @@ app.post("/api/contact", async (req, res) => {
     data.phone = cleanText(data.phone, 50);
     data.message = cleanText(data.message, 3000);
     data.source = cleanText(data.source, 120);
+    data.form_type = isQuickContact ? "quick-contact-popup" : "growth-plan";
     data.landing_page = cleanText(data.landing_page, 1000);
     data.attribution = cleanAttribution(data.attribution);
     data.lead_score = scoreGrowthPlan(data);

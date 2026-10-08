@@ -1365,6 +1365,37 @@ footer{
 }
 
 /* ===========================
+   QUICK CONTACT POPUP
+=========================== */
+.quick-contact-overlay{
+  position:fixed;inset:0;z-index:8700;display:flex;align-items:center;justify-content:center;
+  padding:24px;background:rgba(13,13,13,.72);backdrop-filter:blur(14px);
+  opacity:0;pointer-events:none;transition:opacity .3s ease;
+}
+.quick-contact-overlay.open{opacity:1;pointer-events:all;}
+.quick-contact-box{
+  position:relative;width:min(100%,470px);max-height:calc(100vh - 48px);overflow:auto;
+  padding:34px;background:var(--chalk);border-radius:24px;box-shadow:0 34px 90px rgba(0,0,0,.38);
+  transform:translateY(24px) scale(.97);transition:transform .35s cubic-bezier(.22,.68,0,1.2);
+}
+.quick-contact-overlay.open .quick-contact-box{transform:translateY(0) scale(1);}
+.quick-contact-box .v2-eyebrow{margin:0 0 12px;}
+.quick-contact-box h2{font:800 clamp(30px,5vw,42px)/.98 'Bricolage Grotesque',sans-serif;letter-spacing:-.04em;margin:0 36px 14px 0;}
+.quick-contact-box h2 em{font-style:normal;color:var(--orange);}
+.quick-contact-box > p{font-size:14px;line-height:1.55;color:var(--mid);margin:0 0 22px;}
+.quick-contact-close{position:absolute;right:20px;top:20px;width:34px;height:34px;border:0;border-radius:50%;background:rgba(0,0,0,.06);color:var(--ink);font-size:16px;cursor:pointer;}
+.quick-contact-form{display:grid;gap:8px;}
+.quick-contact-form .form-label{margin-top:6px;}
+.quick-contact-form .form-submit{margin-top:12px;}
+.quick-contact-full-link,.quick-contact-status{font-size:12px;line-height:1.5;color:var(--mid);margin:4px 0 0;}
+.quick-contact-full-link a{color:var(--ink);font-weight:700;text-underline-offset:3px;}
+.quick-contact-status{min-height:18px;}
+@media(max-width:560px){
+  .quick-contact-overlay{padding:14px;align-items:end;}
+  .quick-contact-box{max-height:calc(100vh - 28px);padding:28px 22px;border-radius:20px;}
+}
+
+/* ===========================
    ENHANCED CONTACT PAGE
 =========================== */
 .contact-hero-full{
